@@ -1,0 +1,133 @@
+from tkinter import *
+from tkinter import messagebox
+
+def register_new():
+    register = Tk()
+    register.title("Register New User")
+    register.geometry("500x500")
+    register.resizable(False, False)
+
+    header_frame = Frame(register, bg="#D8E9E6")
+    buttons_frame = Frame(register, bg="skyblue")
+    status_frame = Frame(register, bg="white")
+
+    # using the pack() method to place the frames in the window
+    header_frame.pack(fill="both")
+    buttons_frame.pack(expand=TRUE, fill="both")
+    status_frame.pack(fill="both")
+
+    register.configure(bg="white")
+    label_0 = Label(register, text="Registering as a new user", width=20, font=("bold", 20))
+    label_0.place(x=90, y=53)
+    label_1 = Label(register, text="FullName", width=20, font=("bold", 10))
+    label_1.place(x=80, y=130)
+    entry_1 = Entry(register)
+    entry_1.place(x=240, y=130)
+    label_2 = Label(register, text="Email", width=20, font=("bold", 10))
+    label_2.place(x=68, y=180)
+    entry_2 = Entry(register)
+    entry_2.place(x=240, y=180)
+    label_3 = Label(register, text="Gender", width=20, font=("bold", 10))
+    label_3.place(x=70, y=230)
+    var = IntVar()
+    Radiobutton(register, text="Male", padx=5, variable=var, value=1).place(x=235, y=230)
+    Radiobutton(register, text="Female", padx=20, variable=var, value=2).place(x=300, y=230)
+    label_4 = Label(register, text="Age:", width=20, font=("bold", 10))
+    label_4.place(x=70, y=280)
+    entry_2 = Entry(register)
+    entry_2.place(x=240, y=280)
+    submit_button = Button(register, text='Submit', width=20, bg='white', fg='black')
+    submit_button.place(x=180, y=380)
+
+
+def mode():
+    mode_var = Tk()
+    mode_var.title("Modes of Pacemaker")
+    mode_var.geometry("200x400")
+    mode_var.resizable(False, False)
+    button_1 = Button(mode_var, text="AOO")
+    button_1.place(x=90, y=50)
+    button_2 = Button(mode_var, text="VOO")
+    button_2.place(x=90, y=80)
+    button_3 = Button(mode_var, text="AAI")
+    button_3.place(x=90, y=110)
+    button_4 = Button(mode_var, text="VVI")
+    button_4.place(x=90, y=140)
+    button_5 = Button(mode_var, text="Home")
+    button_5.place(x=90, y=170)
+
+
+def display():
+    pass
+
+
+def welcome(root):
+    connection = True
+    warning = False
+
+    root.title("Pacemaker")
+    root.geometry("400x300+650+250")
+    root.resizable(0, 0)
+    root.configure(bg="white")
+
+    header_frame = Frame(root, bg="#D8E9E6")
+    buttons_frame = Frame(root, bg="skyblue")
+    status_frame = Frame(root, bg="white")
+
+    # using the pack() method to place the frames in the window
+    header_frame.pack(fill="both")
+    buttons_frame.pack(expand=TRUE, fill="both")
+    status_frame.pack(fill="both")
+
+    header_label = Label(
+        header_frame, text="Welcome to the Best Pacemaker Ever", font=("Calibri", "16"), bg="white", fg="blue"
+    )
+
+    # using the pack() method to place the label in the window
+    header_label.pack(expand=TRUE, fill="both", pady=12)
+    register_button = Button(
+        buttons_frame, text="Register a New User", font=("Calibri", "15"), width=20, bg="white", fg="blue",
+        relief=GROOVE,
+        activebackground="blue", command=register_new
+    )
+
+    mode_button = Button(
+        buttons_frame, text="Mode", font=("Calibri", "15"), width=20, bg="white", fg="blue", relief=GROOVE,
+        activebackground="blue", command=mode
+    )
+
+    display_button = Button(
+        buttons_frame, text="Display the Parameters", font=("Calibri", "15"), width=20, bg="white", fg="blue",
+        relief=GROOVE,
+        activebackground="blue", command=display
+    )
+    if warning:
+        warning_message = Label(
+            status_frame, text="Danger! Another Pacemaker nearby!", font=("Calibri", "16"), bg="white", fg="red"
+        )
+        warning_message.pack(expand=TRUE, fill="both", pady=12)
+
+    status_message = Label(
+        status_frame, text="Status update: Connection with DCM is " + "ON" if (connection == TRUE)
+        else "Status update: Connection with DCM is " + "OFF", font=("Calibri", "16"), bg="white", fg="blue"
+    )
+    status_message.pack(expand=TRUE, fill="both", pady=12)
+
+    register_button.pack(pady=9)
+    mode_button.pack(pady=9)
+    display_button.pack(pady=9)
+
+    def on_closing():
+        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            root.destroy()
+
+    root.protocol("WM_DELETE_WINDOW", on_closing)
+
+
+def main():
+    root = Tk()
+    welcome(root)
+    root.mainloop()
+
+
+main()
