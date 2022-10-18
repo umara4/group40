@@ -241,7 +241,6 @@ class HomePage:
     def Register(self):
         self.database = Database()
         num = self.database.Check()[0]
-        print(num)
         if num < 10:
             self.registerWindow = RegisterationWindow()
         else:
