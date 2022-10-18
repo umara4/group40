@@ -179,7 +179,7 @@ class LoginWindow():
             tkinter.messagebox.showinfo('Login success', "You are logged in!")
             self.logged_in()
         else:
-            tkinter.messagebox.showerror("Info not correct")
+            tkinter.messagebox.showerror("login fail", "Login info not correct! Please try again or register")
 
     def logged_in(self):
         self.logged_in_window = LoggedInWindow()
@@ -211,10 +211,45 @@ class LoggedInWindow:
                       width=50).grid(pady=20, column=1, row=2)
 
     def Mode(self):
-        pass
+        self.modewindow = ModeWindow()
 
     def Edit(self):
         pass
+
+
+class ModeWindow:
+    def __init__(self):
+        self.currentmode = "AOO"
+        self.window = tkinter.Tk()
+        self.window.wm_title("Pacemaker Modes")
+        bg_color = "blue"
+        fg_color = "white"
+        cha_color = "black"
+        tkinter.Label(self.window, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color, text="Current Mode: ",
+                      font=("times new roman", 20, "bold"), width=30).grid(pady=20, column=1, row=1)
+        tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="AOO",
+                       font=("times new roman", 15, "bold"), command=self.AOO).grid(pady=15, column=1, row=2)
+        tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="VOO",
+                       font=("times new roman", 15, "bold"), command=self.VOO).grid(pady=15, column=1, row=3)
+        tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="AAI",
+                       font=("times new roman", 15, "bold"), command=self.AAI).grid(pady=15, column=1, row=4)
+        tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="VVI",
+                       font=("times new roman", 15, "bold"), command=self.VVI).grid(pady=15, column=1, row=5)
+
+    def currentMode(self):
+        return self.currentmode
+
+    def AOO(self):
+        self.currentmode = "AOO"
+
+    def VOO(self):
+        self.currentmode = "VOO"
+
+    def AAI(self):
+        self.currentmode = "AAI"
+
+    def VVI(self):
+        self.currentmode = "VVI"
 
 
 class HomePage:
