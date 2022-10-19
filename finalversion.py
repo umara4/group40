@@ -7,9 +7,9 @@ warning = True
 connection = True
 
 
-class Database:
+class LoginDatabase:
     def __init__(self):
-        self.dbConnection = sqlite3.connect("patientdb.db")
+        self.dbConnection = sqlite3.connect("userlogin.db")
         self.dbCursor = self.dbConnection.cursor()
         self.dbCursor.execute(
             "CREATE TABLE IF NOT EXISTS patient_table (firstname text, lastname text, password text)")
@@ -38,6 +38,29 @@ class Database:
         self.dbCursor.execute("SELECT COUNT(*) FROM patient_table")
         result = self.dbCursor.fetchone()
         return result
+
+
+class AAIParameterDatabase:
+    def __init__(self):
+        self.connection = sqlite3.connect("parameter.db")
+        self.Cursor = self.Connection.cursor()
+        self.Cursor.execute(
+            "CREATE TABLE IF NOT EXISTS patient_table (LRL text, URL text, Atrial Amplitude text, Atrial Pulse Width text, Atrial Sensitivity text, ARP text, PVARP text, Hysteresis text, Rate Smoothing text")
+
+    def __del__(self):
+        self.Cursor.close()
+        self.Connection.close()
+
+    def Insert(self, LRL, URL,Atrial_Amplitude,Atrial_Pulse_Width,Atrial_Sensitivity,ARP, PVARP,Hysteresis, Rate_Smoothing):
+        self.Cursor.execute("INSERT INTO patient_table VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                              (LRL, URL,Atrial_Amplitude,Atrial_Pulse_Width,Atrial_Sensitivity,ARP, PVARP,Hysteresis, Rate_Smoothing))
+        self.Connection.commit()
+
+    def Display(self):
+        self.Cursor.execute("SELECT * FROM patient_table")
+        records = self.Cursor.fetchall()
+        return records
+
 
 class Values:
     def Validate(self, firstname, lastname, password, passwordreentry):
@@ -85,7 +108,7 @@ class RegisterationWindow:
         self.passwordreEntry.grid(pady=5, column=3, row=5)
 
         # Button widgets
-        tkinter.Button(self.window, width=10, fg=cha_color, bg=bg_color, font=("times new roman",10,"bold"), text="Insert", command=self.Insert).grid(pady=15, padx=5, column=1,
+        tkinter.Button(self.window, width=10, fg=cha_color, bg=bg_color, font=("times new roman",10,"bold"), text="Submit", command=self.Insert).grid(pady=15, padx=5, column=1,
                                                                                        row=14)
         tkinter.Button(self.window, width=10, fg=cha_color, bg=bg_color, font=("times new roman",10,"bold"), text="Reset", command=self.Reset).grid(pady=15, padx=5, column=2, row=14)
         tkinter.Button(self.window, width=10, fg=cha_color, bg=bg_color, font=("times new roman",10,"bold"), text="Close", command=self.window.destroy).grid(pady=15, padx=5, column=3,
@@ -94,7 +117,7 @@ class RegisterationWindow:
 
     def Insert(self):
         self.values = Values()
-        self.database = Database()
+        self.database = LoginDatabase()
         self.test = self.values.Validate( self.firstnameEntry.get(), self.lastnameEntry.get(),
                                          self.passwordEntry.get(),self.passwordreEntry.get())
         if self.test == "SUCCESS":
@@ -173,7 +196,7 @@ class LoginWindow():
 
     def Submit(self):
         self.values = Values()
-        self.database = Database()
+        self.database = LoginDatabase()
         self.data = self.database.Search(self.lastnameEntry.get(), self.passwordEntry.get())
         if self.data:
             tkinter.messagebox.showinfo('Login success', "You are logged in!")
@@ -198,7 +221,7 @@ class LoggedInWindow:
         tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Mode",
                        font=("times new roman", 15, "bold"), command=self.Mode).grid(pady=15, column=1, row=4)
         tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Edit",
-                       font=("times new roman", 15, "bold"), command=self.Edit).grid(pady=15, column=1, row=5)
+                       font=("times new roman", 15, "bold"), command=self.Parameters).grid(pady=15, column=1, row=5)
 
         if warning:
             tkinter.Label(self.window, relief=tkinter.GROOVE, fg=warning_color, bg=bg_color,
@@ -213,19 +236,98 @@ class LoggedInWindow:
     def Mode(self):
         self.modewindow = ModeWindow()
 
-    def Edit(self):
-        pass
+    def Parameters(self):
+        self.parameterswindow = ParametersWindow()
 
+
+class ParametersWindow:
+    def __init__(self):
+        self.window = tkinter.Tk()
+        self.window.wm_title("Current Parameters")
+        bg_color = "blue"
+        fg_color = "white"
+        cha_color = "black"
+
+        self.LRLtype = list(range(50,90))
+        self.URLtype = list(range(50,175))
+        self.PulseAmplitudetype = ["Off", "1.25V", "2.5V", "3.75V", "5.0V"]
+        self.PulseWidthtype = [0.05]
+        self.Sensitivitytype = [0.25, 0.5, 0.75]
+        self.PVARPtype = list(range(150,500))
+        self.Hysteresistype = ["Off", "Same as LRL"]
+        self.RateSmoothingtype = ["Off", "3%", "6%", "9%", "12%", "15%", "18%", "21%", "25%"]
+
+        self.mode = ModeWindow()
+        tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Save",
+                       font=("times new roman", 15, "bold"), command=self.Save).grid(pady=15, column=1, row=10)
+        if self.mode.currentmode == "AAI":
+            tkinter.Label(self.window, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
+                          text="LRL: ",
+                          font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=1)
+            tkinter.Label(self.window, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
+                          text="URL: ",
+                          font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=2)
+            tkinter.Label(self.window, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
+                          text="Atrial Amplitude: ",
+                          font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=3)
+            tkinter.Label(self.window, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
+                          text="Atrial Pulse Width: ",
+                          font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=4)
+            tkinter.Label(self.window, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
+                          text="Atrial Sensitivity: ",
+                          font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=5)
+            tkinter.Label(self.window, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
+                          text="ARP: ",
+                          font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=6)
+            tkinter.Label(self.window, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
+                          text="PVARP: ",
+                          font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=7)
+            tkinter.Label(self.window, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
+                          text="Hysteresis: ",
+                          font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=8)
+            tkinter.Label(self.window, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
+                          text="Rate Smoothing: ",
+                          font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=9)
+
+            #missing ARP and Atrial Amplitude
+            self.LRLBox = tkinter.ttk.Combobox(self.window, values=self.LRLtype, width=20)
+            self.URLBox = tkinter.ttk.Combobox(self.window, values=self.URLtype, width=20)
+            self.PulseAmplitudeBox = tkinter.ttk.Combobox(self.window, values=self.PulseAmplitudetype, width=20)
+            self.PulseWidthBox = tkinter.ttk.Combobox(self.window, values=self.PulseWidthtype, width=20)
+            self.SensitivityBox = tkinter.ttk.Combobox(self.window, values=self.Sensitivitytype, width=20)
+            self.PVARPBox = tkinter.ttk.Combobox(self.window, values=self.PVARPtype, width=20)
+            self.HysteresisBox = tkinter.ttk.Combobox(self.window, values=self.Hysteresistype, width=20)
+            self.RateSmoothingBox = tkinter.ttk.Combobox(self.window, values=self.RateSmoothingtype, width=20)
+
+            # missing ARP and Atrial Amplitude
+            self.LRLBox.grid(pady=5, column=3, row=1)
+            self.URLBox.grid(pady=5, column=3, row=2)
+            self.PulseAmplitudeBox.grid(pady=5, column=3, row=3)
+            self.PulseWidthBox.grid(pady=5, column=3, row=4)
+            self.SensitivityBox.grid(pady=5, column=3, row=5)
+            self.PVARPBox.grid(pady=5, column=3, row=7)
+            self.HysteresisBox.grid(pady=5, column=3, row=8)
+            self.RateSmoothingBox.grid(pady=5, column=3, row=9)
+
+        elif self.mode.currentmode == "VVI":
+            pass
+        elif self.mode.currentmode == "AOO":
+            pass
+        elif self.mode.currentmode == "VOO":
+            pass
+    def Save(self):
+        pass
 
 class ModeWindow:
     def __init__(self):
-        self.currentmode = "AOO"
+        self.currentmode = "AAI"
+        self.currentmode = self.currentMode()
         self.window = tkinter.Tk()
         self.window.wm_title("Pacemaker Modes")
         bg_color = "blue"
         fg_color = "white"
         cha_color = "black"
-        tkinter.Label(self.window, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color, text="Current Mode: ",
+        tkinter.Label(self.window, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color, text="Current Mode: " + str(self.currentmode),
                       font=("times new roman", 20, "bold"), width=30).grid(pady=20, column=1, row=1)
         tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="AOO",
                        font=("times new roman", 15, "bold"), command=self.AOO).grid(pady=15, column=1, row=2)
@@ -237,19 +339,27 @@ class ModeWindow:
                        font=("times new roman", 15, "bold"), command=self.VVI).grid(pady=15, column=1, row=5)
 
     def currentMode(self):
+        print(self.currentmode)
         return self.currentmode
 
     def AOO(self):
         self.currentmode = "AOO"
+        self.window.update()
 
     def VOO(self):
         self.currentmode = "VOO"
+        return self.currentmode
+        self.window.update()
 
     def AAI(self):
         self.currentmode = "AAI"
+        return self.currentmode
+        self.window.update()
 
     def VVI(self):
         self.currentmode = "VVI"
+        return self.currentmode
+        self.window.update()
 
 
 class HomePage:
@@ -274,7 +384,7 @@ class HomePage:
         self.homePageWindow.mainloop()
 
     def Register(self):
-        self.database = Database()
+        self.database = LoginDatabase()
         num = self.database.Check()[0]
         if num < 10:
             self.registerWindow = RegisterationWindow()
@@ -282,11 +392,12 @@ class HomePage:
             tkinter.messagebox.showerror("Registeration Full", "Registeration full, please log in")
 
     def Display(self):
-        self.database = Database()
+        self.database = LoginDatabase()
         self.data = self.database.Display()
         self.displayWindow = DatabaseView(self.data)
 
     def Login(self):
         self.loginWindow = LoginWindow()
+
 
 homePage = HomePage()
