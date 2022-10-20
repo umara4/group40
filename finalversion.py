@@ -66,6 +66,17 @@ class AAIParameterDatabase:
         searchResults = self.Cursor.fetchall()
         return searchResults
 
+    def Update(self, LRL, URL,Atrial_Amplitude, Atrial_Pulse_Width, Atrial_Sensitivity, ARP, PVARP, Hysteresis, Rate_Smoothing, userID):
+        self.Cursor.execute(
+            "UPDATE patient_table SET LRL = ?, URL = ?, AtrialAmplitude = ?, Atrial_Width = ?, AtrialSensitivity = ?, ARP = ?, PVARP = ?, Hysteresis = ?, RateSmoothing = ? WHERE userID = ?",
+            (LRL, URL, Atrial_Amplitude,Atrial_Pulse_Width,Atrial_Sensitivity, ARP, PVARP, Hysteresis, Rate_Smoothing, userID))
+        self.Connection.commit()
+
+    def Delete(self, userID):
+        self.Cursor.execute("DELETE FROM patient_table WHERE userID = ?", (userID,))
+        #tkinter.messagebox.showinfo("Deleted data", "Successfully Deleted the Patient data in the database")
+        self.Connection.commit()
+
 
 class Values:
     def Validate(self, firstname, lastname, password, passwordreentry):
@@ -376,8 +387,24 @@ class ParametersWindow:
             self.RateSmoothingBox = tkinter.ttk.Combobox(self.parameterwindow, values=self.RateSmoothingtype, width=20,
                                                          state='disabled')
 
-            if self.AAI_set:
-                self.searchresult = self.AAI.Search(self.UserID)
+            # if self.AAI_set:
+            #     self.searchresult = self.AAI.Search(self.UserID)
+            #     self.LRLBox.set(self.searchresult[0])
+            #     self.URLBox.set(self.searchresult[1])
+            #     self.PulseAmplitudeBox.set(self.searchresult[2])
+            #     self.PulseWidthBox.set(self.searchresult[3])
+            #     self.SensitivityBox.set(self.searchresult[4])
+            #     self.ARPBox.set(self.searchresult[5])
+            #     self.PVARPBox.set(self.searchresult[6])
+            #     self.HysteresisBox.set(self.searchresult[7])
+            #     self.RateSmoothingBox.set(self.searchresult[8])
+            # else:
+            #     self.AAIdefaultSetting()
+            #     self.AAI_set = True
+            self.searchresult = self.AAI.Search(self.UserID)
+            for result in self.searchresult:
+                print(result)
+            try:
                 self.LRLBox.set(self.searchresult[0])
                 self.URLBox.set(self.searchresult[1])
                 self.PulseAmplitudeBox.set(self.searchresult[2])
@@ -387,9 +414,8 @@ class ParametersWindow:
                 self.PVARPBox.set(self.searchresult[6])
                 self.HysteresisBox.set(self.searchresult[7])
                 self.RateSmoothingBox.set(self.searchresult[8])
-            else:
+            except IndexError:
                 self.AAIdefaultSetting()
-                self.AAI_set = True
 
             self.LRLBox.grid(pady=5, column=3, row=1)
             self.URLBox.grid(pady=5, column=3, row=2)
@@ -501,6 +527,8 @@ class ParametersWindow:
             self.PulseWidthBox.grid(pady=5, column=3, row=4)
 
     def Save(self):
+        self.counter = 0
+        print(self.counter)
         self.AAIdatabase = AAIParameterDatabase()
         self.LRLBox.config(state='disabled')
         self.URLBox.config(state='disabled')
@@ -512,9 +540,21 @@ class ParametersWindow:
             self.SensitivityBox.config(state='disabled')
             self.HysteresisBox.config(state='disabled')
             self.RateSmoothingBox.config(state='disabled')
-            self.AAIdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
-                                    self.PulseWidthBox.get(),self.ARPBox.get(),self.PVARPBox.get(),
-                                    self.SensitivityBox.get(),self.HysteresisBox.get(),self.RateSmoothingBox.get())
+            if self.counter == 0:
+                self.AAIdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get(),self.ARPBox.get(),self.PVARPBox.get(),
+                                        self.SensitivityBox.get(),self.HysteresisBox.get(),self.RateSmoothingBox.get())
+                self.counter += 1
+            else:
+                self.AAIdatabase.Update(self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get(),self.ARPBox.get(),self.PVARPBox.get(),
+                                        self.SensitivityBox.get(),self.HysteresisBox.get(),self.RateSmoothingBox.get(),
+                                        self.UserID)
+                # self.AAIdatabase.Delete(self.UserID)
+                # self.AAIdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                #                         self.PulseWidthBox.get(), self.ARPBox.get(), self.PVARPBox.get(),
+                #                         self.SensitivityBox.get(), self.HysteresisBox.get(),
+                #                         self.RateSmoothingBox.get())
         elif self.currentmode == "VVI":
             self.VRPBox.config(state='disabled')
             self.SensitivityBox.config(state='disabled')
