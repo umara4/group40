@@ -6,6 +6,7 @@ import sqlite3
 warning = True
 connection = True
 
+
 class VariableDatabase:
     def __init__(self):
         self.Connection = sqlite3.connect("variable.db")
@@ -18,9 +19,25 @@ class VariableDatabase:
         self.Connection.close()
 
     def Insert(self, userID, mode):
-        self.Cursor.execute("INSERT INTO Login_table VALUES (?, ?)",
+        self.Cursor.execute("INSERT INTO Variable_table VALUES (?, ?)",
                               (userID, mode))
         self.Connection.commit()
+
+    def Search(self, userID):
+        self.Cursor.execute("SELECT * FROM Variable_table WHERE UserID = ?", userID)
+        searchResults = self.Cursor.fetchall()
+        return searchResults
+
+    def Update(self, mode, userID):
+        self.Cursor.execute(
+            "UPDATE Variable_table SET Mode WHERE userID = ?",
+            (mode, userID))
+        self.connection.commit()
+
+    def Empty(self, userID):
+        self.Cursor.execute("SELECT EXISTS(SELECT * from Variable_table WHERE UserID = ?)", userID)
+        result = self.Cursor.fetchall()
+        return result
 
 
 class LoginDatabase:
@@ -94,6 +111,118 @@ class AAIParameterDatabase:
         return result
 
 
+class VVIParameterDatabase:
+    def __init__(self):
+        self.connection = sqlite3.connect("VVIparameter.db")
+        self.Cursor = self.connection.cursor()
+        self.Cursor.execute(
+            "CREATE TABLE IF NOT EXISTS VVIparameter_table (UserID PRIMARYKEY text unique, LRL text, URL text, VentricularAmplitude text, VentricularWidth text, VentricularSensitivity text, VRP text, Hysteresis text, RateSmoothing text)")
+
+    def __del__(self):
+        self.Cursor.close()
+        self.connection.close()
+
+    def Insert(self, userID, LRL, URL,Ventricular_Amplitude, Ventricular_Pulse_Width, Ventricular_Sensitivity, VRP, Hysteresis, Rate_Smoothing):
+        self.Cursor.execute("INSERT INTO VVIparameter_table VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                              (userID, LRL, URL, Ventricular_Amplitude,Ventricular_Pulse_Width,Ventricular_Sensitivity, VRP, Hysteresis, Rate_Smoothing))
+        self.connection.commit()
+
+    def Display(self):
+        self.Cursor.execute("SELECT * FROM VVIparameter_table")
+        records = self.Cursor.fetchall()
+        return records
+
+    def Search(self, userID):
+        self.Cursor.execute("SELECT * FROM VVIparameter_table WHERE UserID = ?", userID)
+        searchResults = self.Cursor.fetchall()
+        return searchResults
+
+    def Update(self, LRL, URL,Ventricular_Amplitude, Ventricular_Pulse_Width, Ventricular_Sensitivity, VRP, Hysteresis, Rate_Smoothing, userID):
+        self.Cursor.execute(
+            "UPDATE VVIparameter_table SET LRL = ?, URL = ?, AtrialAmplitude = ?, AtrialWidth = ?, AtrialSensitivity = ?, ARP = ?, PVARP = ?, Hysteresis = ?, RateSmoothing = ? WHERE userID = ?",
+            (LRL, URL, Ventricular_Amplitude,Ventricular_Pulse_Width,Ventricular_Sensitivity, VRP, Hysteresis, Rate_Smoothing, userID))
+        self.connection.commit()
+
+    def Empty(self, userID):
+        self.Cursor.execute("SELECT EXISTS(SELECT * from VVIparameter_table WHERE UserID = ?)", userID)
+        result = self.Cursor.fetchall()
+        return result
+
+
+class AOOParameterDatabase:
+    def __init__(self):
+        self.connection = sqlite3.connect("AOOparameter.db")
+        self.Cursor = self.connection.cursor()
+        self.Cursor.execute(
+            "CREATE TABLE IF NOT EXISTS AOOparameter_table (UserID PRIMARYKEY text unique, LRL text, URL text, AtrialAmplitude text, AtrialWidth text)")
+
+    def __del__(self):
+        self.Cursor.close()
+        self.connection.close()
+
+    def Insert(self, userID, LRL, URL,Atrial_Amplitude, Atrial_Pulse_Width):
+        self.Cursor.execute("INSERT INTO AOOparameter_table VALUES (?, ?, ?, ?, ?)",
+                              (userID, LRL, URL, Atrial_Amplitude,Atrial_Pulse_Width))
+        self.connection.commit()
+
+    def Display(self):
+        self.Cursor.execute("SELECT * FROM AOOparameter_table")
+        records = self.Cursor.fetchall()
+        return records
+
+    def Search(self, userID):
+        self.Cursor.execute("SELECT * FROM AOOparameter_table WHERE UserID = ?", userID)
+        searchResults = self.Cursor.fetchall()
+        return searchResults
+
+    def Update(self, LRL, URL, Atrial_Amplitude, Atrial_Pulse_Width, userID):
+        self.Cursor.execute(
+            "UPDATE AOOparameter_table SET LRL = ?, URL = ?, AtrialAmplitude = ?, AtrialWidth = ? WHERE userID = ?",
+            (LRL, URL, Atrial_Amplitude,Atrial_Pulse_Width, userID))
+        self.connection.commit()
+
+    def Empty(self, userID):
+        self.Cursor.execute("SELECT EXISTS(SELECT * from AOOparameter_table WHERE UserID = ?)", userID)
+        result = self.Cursor.fetchall()
+        return result
+
+
+class VOOParameterDatabase:
+    def __init__(self):
+        self.connection = sqlite3.connect("VOOparameter.db")
+        self.Cursor = self.connection.cursor()
+        self.Cursor.execute(
+            "CREATE TABLE IF NOT EXISTS VOOparameter_table (UserID PRIMARYKEY text unique, LRL text, URL text, VentricularAmplitude text, VentricularWidth text)")
+
+    def __del__(self):
+        self.Cursor.close()
+        self.connection.close()
+
+    def Insert(self, userID, LRL, URL,Ventricular_Amplitude, Ventricular_Pulse_Width):
+        self.Cursor.execute("INSERT INTO VOOparameter_table VALUES (?, ?, ?, ?, ?)",
+                              (userID, LRL, URL, Ventricular_Amplitude,Ventricular_Pulse_Width))
+        self.connection.commit()
+
+    def Display(self):
+        self.Cursor.execute("SELECT * FROM VOOparameter_table")
+        records = self.Cursor.fetchall()
+        return records
+
+    def Search(self, userID):
+        self.Cursor.execute("SELECT * FROM VOOparameter_table WHERE UserID = ?", userID)
+        searchResults = self.Cursor.fetchall()
+        return searchResults
+
+    def Update(self, LRL, URL, Ventricular_Amplitude, Ventricular_Pulse_Width, userID):
+        self.Cursor.execute(
+            "UPDATE VOOparameter_table SET LRL = ?, URL = ?, VentricularAmplitude = ?, VentricularWidth = ? WHERE userID = ?",
+            (LRL, URL, Ventricular_Amplitude,Ventricular_Pulse_Width, userID))
+        self.connection.commit()
+
+    def Empty(self, userID):
+        self.Cursor.execute("SELECT EXISTS(SELECT * from VOOparameter_table WHERE UserID = ?)", userID)
+        result = self.Cursor.fetchall()
+        return result
 
 
 class Values:
@@ -169,6 +298,7 @@ class RegisterationWindow:
         self.passwordEntry.delete(0,tkinter.END)
         self.passwordreEntry.delete(0, tkinter.END)
 
+
 class AAIparametersDatabaseView:
     def __init__(self, data):
         self.databaseViewWindow = tkinter.Tk()
@@ -209,6 +339,109 @@ class AAIparametersDatabaseView:
             self.databaseView.insert('', 'end', values=(record))
 
         self.databaseViewWindow.mainloop()
+
+
+class VVIparametersDatabaseView:
+    def __init__(self, data):
+        self.databaseViewWindow = tkinter.Tk()
+        self.databaseViewWindow.wm_title("VVI Parameters Database View")
+
+        tkinter.Label(self.databaseViewWindow, text="Database View Window", width=25).grid(pady=5, column=1, row=1)
+
+        self.databaseView = tkinter.ttk.Treeview(self.databaseViewWindow)
+        self.databaseView.grid(pady=5, column=1, row=2)
+        self.databaseView["show"] = "headings"
+        self.databaseView["columns"] = ("UserID", "LRL", "URL", "VentricularAmplitude", "VentricularWidth",
+                                        "VentricularSensitivity", "VRP", "Hysteresis", "RateSmoothing")
+
+        # Treeview column headings
+        self.databaseView.heading("UserID", text="UserID")
+        self.databaseView.heading("LRL", text="LRL")
+        self.databaseView.heading("URL", text="URL")
+        self.databaseView.heading("VentricularAmplitude", text="VentricularAmplitude")
+        self.databaseView.heading("VentricularWidth", text="VentricularWidth")
+        self.databaseView.heading("VentricularSensitivity", text="VentricularSensitivity")
+        self.databaseView.heading("VRP", text="VRP")
+        self.databaseView.heading("Hysteresis", text="Hysteresis")
+        self.databaseView.heading("RateSmoothing", text="RateSmoothing")
+
+        self.databaseView.column("UserID", width=100)
+        self.databaseView.column("LRL", width=100)
+        self.databaseView.column("URL", width=100)
+        self.databaseView.column("VentricularAmplitude", width=100)
+        self.databaseView.column("VentricularWidth", width=100)
+        self.databaseView.column("VentricularSensitivity", width=100)
+        self.databaseView.column("VRP", width=100)
+        self.databaseView.column("Hysteresis", width=100)
+        self.databaseView.column("RateSmoothing", width=100)
+
+        for record in data:
+            self.databaseView.insert('', 'end', values=(record))
+
+        self.databaseViewWindow.mainloop()
+
+
+class AOOparametersDatabaseView:
+    def __init__(self, data):
+        self.databaseViewWindow = tkinter.Tk()
+        self.databaseViewWindow.wm_title("AOO Parameters Database View")
+
+        tkinter.Label(self.databaseViewWindow, text="Database View Window", width=25).grid(pady=5, column=1, row=1)
+
+        self.databaseView = tkinter.ttk.Treeview(self.databaseViewWindow)
+        self.databaseView.grid(pady=5, column=1, row=2)
+        self.databaseView["show"] = "headings"
+        self.databaseView["columns"] = ("UserID", "LRL", "URL", "AtrialAmplitude", "AtrialWidth")
+
+        # Treeview column headings
+        self.databaseView.heading("UserID", text="UserID")
+        self.databaseView.heading("LRL", text="LRL")
+        self.databaseView.heading("URL", text="URL")
+        self.databaseView.heading("AtrialAmplitude", text="AtrialAmplitude")
+        self.databaseView.heading("AtrialWidth", text="AtrialWidth")
+
+        self.databaseView.column("UserID", width=100)
+        self.databaseView.column("LRL", width=100)
+        self.databaseView.column("URL", width=100)
+        self.databaseView.column("AtrialAmplitude", width=100)
+        self.databaseView.column("AtrialWidth", width=100)
+
+        for record in data:
+            self.databaseView.insert('', 'end', values=(record))
+
+        self.databaseViewWindow.mainloop()
+
+
+class VOOparametersDatabaseView:
+    def __init__(self, data):
+        self.databaseViewWindow = tkinter.Tk()
+        self.databaseViewWindow.wm_title("VOO Parameters Database View")
+
+        tkinter.Label(self.databaseViewWindow, text="Database View Window", width=25).grid(pady=5, column=1, row=1)
+
+        self.databaseView = tkinter.ttk.Treeview(self.databaseViewWindow)
+        self.databaseView.grid(pady=5, column=1, row=2)
+        self.databaseView["show"] = "headings"
+        self.databaseView["columns"] = ("UserID", "LRL", "URL", "VentricularAmplitude", "VentricularWidth")
+
+        # Treeview column headings
+        self.databaseView.heading("UserID", text="UserID")
+        self.databaseView.heading("LRL", text="LRL")
+        self.databaseView.heading("URL", text="URL")
+        self.databaseView.heading("VentricularAmplitude", text="VentricularAmplitude")
+        self.databaseView.heading("VentricularWidth", text="VentricularWidth")
+
+        self.databaseView.column("UserID", width=100)
+        self.databaseView.column("LRL", width=100)
+        self.databaseView.column("URL", width=100)
+        self.databaseView.column("VentricularAmplitude", width=100)
+        self.databaseView.column("VentricularWidth", width=100)
+
+        for record in data:
+            self.databaseView.insert('', 'end', values=(record))
+
+        self.databaseViewWindow.mainloop()
+
 
 class LoginDatabaseView:
     def __init__(self, data):
@@ -325,28 +558,34 @@ class LoggedInWindow:
             tkinter.messagebox.showerror("Invalid Mode","Select your mode first!")
 
     def Display(self):
-        self.database = AAIParameterDatabase()
+        # self.database = AAIParameterDatabase()
+        # self.data = self.database.Display()
+        # self.displayWindow = AAIparametersDatabaseView(self.data)
+
+        # self.database = VVIParameterDatabase()
+        # self.data = self.database.Display()
+        # self.displayWindow = VVIparametersDatabaseView(self.data)
+
+        self.database = AOOParameterDatabase()
         self.data = self.database.Display()
-        self.displayWindow = AAIparametersDatabaseView(self.data)
+        self.displayWindow = AOOparametersDatabaseView(self.data)
 
 
 class ParametersWindow:
     def __init__(self, modewindow, userID):
         self.currentmode = modewindow.cmode # currentmode is a variable created to record the current mode of the pacemaker
         # cmode is a variable in ModeWindow class that stores the current mode
+        print(self.currentmode)
         self.parameterwindow = tkinter.Tk()
         self.UserID = userID
         self.parameterwindow.wm_title("Current Parameters")
         self.AAI = AAIParameterDatabase()
-        self.AAI_set = False
-        self.VVI_set = False
-        self.VOO_set = False
-        self.AOO_set = False
+        self.VVI = VVIParameterDatabase()
+        self.AOO = AOOParameterDatabase()
+        self.VOO = VOOParameterDatabase()
         bg_color = "blue"
         fg_color = "white"
         cha_color = "black"
-        print(self.currentmode)
-        print(self.UserID)
         self.LRLtype = list(range(50,90))
         self.URLtype = list(range(50,175))
         self.PulseAmplitudetype = ["Off", "1.25V", "2.5V", "3.75V", "5.0V"]
@@ -463,12 +702,20 @@ class ParametersWindow:
                                                       state='disabled')
             self.RateSmoothingBox = tkinter.ttk.Combobox(self.parameterwindow, values=self.RateSmoothingtype, width=20,
                                                          state='disabled')
-
-            if self.VVI_set:
-                pass
+            self.search = []
+            self.searchresult = self.VVI.Search(self.UserID)
+            self.another = self.VVI.Empty(self.UserID)
+            if self.another[0][0] == 1:
+                self.LRLBox.set(self.searchresult[0][1])
+                self.URLBox.set(self.searchresult[0][2])
+                self.PulseAmplitudeBox.set(self.searchresult[0][3])
+                self.PulseWidthBox.set(self.searchresult[0][4])
+                self.SensitivityBox.set(self.searchresult[0][5])
+                self.VRPBox.set(self.searchresult[0][6])
+                self.HysteresisBox.set(self.searchresult[0][7])
+                self.RateSmoothingBox.set(self.searchresult[0][8])
             else:
                 self.VVIdefaultSetting()
-                self.VVI_set = True
 
             self.LRLBox.grid(pady=5, column=3, row=1)
             self.URLBox.grid(pady=5, column=3, row=2)
@@ -492,12 +739,16 @@ class ParametersWindow:
                                                           state='disabled')
             self.PulseWidthBox = tkinter.ttk.Combobox(self.parameterwindow, values=self.PulseWidthtype, width=20,
                                                       state='disabled')
-
-            if self.AOO_set:
-                pass
+            self.search = []
+            self.searchresult = self.AOO.Search(self.UserID)
+            self.another = self.AOO.Empty(self.UserID)
+            if self.another[0][0] == 1:
+                self.LRLBox.set(self.searchresult[0][1])
+                self.URLBox.set(self.searchresult[0][2])
+                self.PulseAmplitudeBox.set(self.searchresult[0][3])
+                self.PulseWidthBox.set(self.searchresult[0][4])
             else:
                 self.AOOVOOdefaultSetting()
-                self.AOO_set = True
 
             self.LRLBox.grid(pady=5, column=3, row=1)
             self.URLBox.grid(pady=5, column=3, row=2)
@@ -518,11 +769,16 @@ class ParametersWindow:
                                                           state='disabled')
             self.PulseWidthBox = tkinter.ttk.Combobox(self.parameterwindow, values=self.PulseWidthtype, width=20,
                                                       state='disabled')
-            if self.VOO_set:
-                pass
+            self.search = []
+            self.searchresult = self.VOO.Search(self.UserID)
+            self.another = self.VOO.Empty(self.UserID)
+            if self.another[0][0] == 1:
+                self.LRLBox.set(self.searchresult[0][1])
+                self.URLBox.set(self.searchresult[0][2])
+                self.PulseAmplitudeBox.set(self.searchresult[0][3])
+                self.PulseWidthBox.set(self.searchresult[0][4])
             else:
                 self.AOOVOOdefaultSetting()
-                self.VOO_set = True
 
             self.LRLBox.grid(pady=5, column=3, row=1)
             self.URLBox.grid(pady=5, column=3, row=2)
@@ -531,6 +787,9 @@ class ParametersWindow:
 
     def Save(self):
         self.AAIdatabase = AAIParameterDatabase()
+        self.VVIdatabase = VVIParameterDatabase()
+        self.AOOdatabase = AOOParameterDatabase()
+        self.VOOdatabase = VOOParameterDatabase()
         self.LRLBox.config(state='disabled')
         self.URLBox.config(state='disabled')
         self.PulseAmplitudeBox.config(state='disabled')
@@ -555,6 +814,29 @@ class ParametersWindow:
             self.SensitivityBox.config(state='disabled')
             self.HysteresisBox.config(state='disabled')
             self.RateSmoothingBox.config(state='disabled')
+            try:
+                self.VVIdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get(),self.VRPBox.get(),
+                                        self.SensitivityBox.get(),self.HysteresisBox.get(),self.RateSmoothingBox.get())
+            except sqlite3.IntegrityError:
+                self.VVIdatabase.Update(self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get(),self.VRPBox.get(),
+                                        self.SensitivityBox.get(),self.HysteresisBox.get(),self.RateSmoothingBox.get(),
+                                        self.UserID)
+        elif self.currentmode == "AOO":
+            try:
+                self.AOOdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get())
+            except sqlite3.IntegrityError:
+                self.AOOdatabase.Update(self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get(),self.UserID)
+        elif self.currentmode == "VOO":
+            try:
+                self.VOOdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get())
+            except sqlite3.InegrityError:
+                self.VOOdatabase.Update(self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get(),self.UserID)
         tkinter.messagebox.showinfo("Saved", "Saved")
 
     def AAIdefaultSetting(self):
@@ -590,11 +872,17 @@ class ParametersWindow:
         self.URLBox.config(state='active')
         self.PulseAmplitudeBox.config(state='active')
         self.PulseWidthBox.config(state='active')
-        self.SensitivityBox.config(state='active')
-        self.ARPBox.config(state='active')
-        self.PVARPBox.config(state='active')
-        self.HysteresisBox.config(state='active')
-        self.RateSmoothingBox.config(state='active')
+        if self.currentmode == "AAI":
+            self.SensitivityBox.config(state='active')
+            self.ARPBox.config(state='active')
+            self.PVARPBox.config(state='active')
+            self.HysteresisBox.config(state='active')
+            self.RateSmoothingBox.config(state='active')
+        elif self.currentmode == "VVI":
+            self.SensitivityBox.config(state='active')
+            self.VRPBox.config(state='active')
+            self.HysteresisBox.config(state='active')
+            self.RateSmoothingBox.config(state='active')
         tkinter.messagebox.showinfo("Edit Mode on", "Edit Mode on")
 
 
