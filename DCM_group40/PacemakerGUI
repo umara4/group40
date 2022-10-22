@@ -46,7 +46,7 @@ class LoginDatabase:
         return moderesult
 
     def setMode(self, command, userID):
-        self.dbCursor.execute(command,(userID))
+        self.dbCursor.execute(command,userID)
         self.dbConnection.commit()
 
 
@@ -231,10 +231,10 @@ class RegisterationWindow:
         self.passwordreentry = tkinter.StringVar()
 
         # Labels
-        tkinter.Label(self.window, fg=fg_color, bg=bg_color, text="Patient First Name",
+        tkinter.Label(self.window, fg=fg_color, bg=bg_color, text="First Name",
                       font=("times new roman", 10, "bold"), width=25).grid(pady=5, column=1, row=2)
         tkinter.Label(self.window, fg=fg_color, bg=bg_color, font=("times new roman", 10, "bold"),
-                      text="Patient Last Name", width=25).grid(pady=5, column=1, row=3)
+                      text="Last Name", width=25).grid(pady=5, column=1, row=3)
         tkinter.Label(self.window, fg=fg_color, bg=bg_color, font=("times new roman", 10, "bold"),
                       text="Password", width=25).grid(pady=5, column=1, row=4)
         tkinter.Label(self.window, fg=fg_color, bg=bg_color, font=("times new roman", 10, "bold"),
@@ -251,14 +251,15 @@ class RegisterationWindow:
         self.passwordreEntry.grid(pady=5, column=3, row=5)
 
         # Button widgets
-        tkinter.Button(self.window, width=10, fg=cha_color, bg=bg_color, font=("times new roman",10,"bold"), text="Submit", command=self.Insert).grid(pady=15, padx=5, column=1,
-                                                                                       row=14)
-        tkinter.Button(self.window, width=10, fg=cha_color, bg=bg_color, font=("times new roman",10,"bold"), text="Reset", command=self.Reset).grid(pady=15, padx=5, column=2, row=14)
-        tkinter.Button(self.window, width=10, fg=cha_color, bg=bg_color, font=("times new roman",10,"bold"), text="Close", command=self.window.destroy).grid(pady=15, padx=5, column=3,
-                                                                                              row=14)
+        tkinter.Button(self.window, width=10, fg=cha_color, bg=bg_color, font=("times new roman",10,"bold"),
+                       text="Submit", command=self.Submit).grid(pady=15, padx=5, column=1,row=14)
+        tkinter.Button(self.window, width=10, fg=cha_color, bg=bg_color, font=("times new roman",10,"bold"),
+                       text="Reset", command=self.Reset).grid(pady=15, padx=5, column=2, row=14)
+        tkinter.Button(self.window, width=10, fg=cha_color, bg=bg_color, font=("times new roman",10,"bold"),
+                       text="Close", command=self.window.destroy).grid(pady=15, padx=5, column=3,row=14)
         self.window.mainloop()
 
-    def Insert(self):
+    def Submit(self):
         self.values = Values()
         self.database = LoginDatabase()
         self.test = self.values.Validate(self.firstnameEntry.get(), self.lastnameEntry.get(),
@@ -538,8 +539,7 @@ class LoggedInWindow:
             tkinter.messagebox.showerror("Invalid Mode", "Select your mode first!")
         else:
             #store mode here
-            print(self.mode)
-            self.login.setMode("UPDATE Login_table SET mode = ? WHERE UserID = ?", (self.mode, self.UserID))
+            self.login.setMode("UPDATE Login_table SET mode = ? WHERE UserID = ?", (self.modewindow.cmode, self.UserID))
             try:
                 self.parameterWindow = ParametersWindow(self.UserID)
             except AttributeError:
@@ -886,7 +886,6 @@ class ModeWindow:
         self.login = LoginDatabase()
         self.result = self.login.ReturnMode(self.UserID)
         self.cmode = self.result[0][4]
-        print(self.cmode)
         self.window = tkinter.Tk()
         self.window.wm_title("Pacemaker Modes")
         bg_color = "blue"
@@ -909,6 +908,9 @@ class ModeWindow:
         self.VVIbutton = tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="VVI",
                        font=("times new roman", 15, "bold"), command=self.VVI)
         self.VVIbutton.grid(pady=15, column=1, row=5)
+
+    def cMode(self):
+        return self.cmode
 
     def AOO(self):
         self.cmode = "AOO"
