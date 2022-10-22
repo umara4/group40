@@ -7,39 +7,6 @@ warning = True
 connection = True
 
 
-# class VariableDatabase:
-#     def __init__(self):
-#         self.Connection = sqlite3.connect("variable.db")
-#         self.Cursor = self.Connection.cursor()
-#         self.Cursor.execute(
-#             "CREATE TABLE IF NOT EXISTS Variable_table (userID PRIMARYKEY text unique, mode text)")
-#
-#     def __del__(self):
-#         self.Cursor.close()
-#         self.Connection.close()
-#
-#     def Insert(self, userID, mode):
-#         self.Cursor.execute("INSERT INTO Variable_table VALUES (?, ?)",
-#                               (userID, mode))
-#         self.Connection.commit()
-#
-#     def Search(self, userID):
-#         self.Cursor.execute("SELECT * FROM Variable_table WHERE UserID = ?", userID)
-#         searchResults = self.Cursor.fetchall()
-#         return searchResults
-#
-#     def Update(self, mode, userID):
-#         self.Cursor.execute(
-#             "UPDATE Variable_table SET Mode WHERE userID = ?",
-#             (mode, userID))
-#         self.connection.commit()
-#
-#     def Empty(self, userID):
-#         self.Cursor.execute("SELECT EXISTS(SELECT * from Variable_table WHERE UserID = ?)", userID)
-#         result = self.Cursor.fetchall()
-#         return result
-
-
 class LoginDatabase:
     def __init__(self):
         self.dbConnection = sqlite3.connect("userlogin.db")
@@ -63,7 +30,7 @@ class LoginDatabase:
         return searchResults
 
     def Display(self):
-        self.dbCursor.execute("SELECT * FROM login_table")
+        self.dbCursor.execute("SELECT * FROM Login_table")
         records = self.dbCursor.fetchall()
         return records
 
@@ -71,6 +38,16 @@ class LoginDatabase:
         self.dbCursor.execute("SELECT COUNT(*) FROM Login_table")
         result = self.dbCursor.fetchone()
         return result
+
+    def ReturnMode(self, userID):
+        self.dbCursor.execute("SELECT * FROM Login_table WHERE UserID = ?",
+                              (userID))
+        moderesult = self.dbCursor.fetchall()
+        return moderesult
+
+    def setMode(self, command, userID):
+        self.dbCursor.execute(command,(userID))
+        self.dbConnection.commit()
 
 
 class AAIParameterDatabase:
@@ -479,10 +456,10 @@ class LoginDatabaseView:
 
 
 class LoginWindow:
-    def __init__(self, userID):
+    def __init__(self):
         self.window = tkinter.Tk()
         self.window.wm_title("Login")
-        self.UserID = userID
+        self.UserID = " "
         bg_color = "Blue"
         fg_color = "white"
         cha_color = "black"
@@ -516,18 +493,20 @@ class LoginWindow:
         self.data = self.database.Search(self.lastnameEntry.get(), self.passwordEntry.get())
         if self.data:
             tkinter.messagebox.showinfo('Login success', "You are logged in!")
-            self.logged_in()
+            self.UserID = self.data[0][0]
+            self.logged_in(self.UserID)
         else:
             tkinter.messagebox.showerror("login fail", "Login info not correct! Please try again or register")
 
-    def logged_in(self):
-        self.logged_in_window = LoggedInWindow(self.UserID)
+    def logged_in(self, userID):
+        self.logged_in_window = LoggedInWindow(userID)
 
 
 class LoggedInWindow:
     def __init__(self, userID):
         self.window = tkinter.Tk()
         self.window.wm_title("Welcome Page")
+        self.login = LoginDatabase()
         self.UserID = userID
         bg_color = "blue"
         fg_color = "white"
@@ -551,21 +530,28 @@ class LoggedInWindow:
                       width=50).grid(pady=20, column=1, row=2)
 
     def Mode(self):
-        self.modewindow = ModeWindow()
+        self.modewindow = ModeWindow(self.UserID)
 
     def Parameters(self):
-        try:
-            self.parameterWindow = ParametersWindow(self.modewindow,self.UserID)
-        except AttributeError:
-            tkinter.messagebox.showerror("Invalid Mode","Select your mode first!")
+        if self.modewindow.cmode == " ":
+            tkinter.messagebox.showerror("Invalid Mode", "Select your mode first!")
+        else:
+            #store mode here
+            print(self.modewindow.cmode)
+            self.login.setMode("UPDATE Login_table SET mode = ? WHERE UserID = ?", (self.modewindow.cmode, self.UserID))
+            try:
+                self.parameterWindow = ParametersWindow(self.UserID)
+            except AttributeError:
+                tkinter.messagebox.showerror("Invalid Mode","Select your mode first!")
 
 
 class ParametersWindow:
-    def __init__(self, modewindow, userID):
-        self.currentmode = modewindow.cmode # currentmode is a variable created to record the current mode of the pacemaker
-        # cmode is a variable in ModeWindow class that stores the current mode
-        self.parameterwindow = tkinter.Tk()
+    def __init__(self, userID):
         self.UserID = userID
+        self.login = LoginDatabase()
+        self.result = self.login.ReturnMode(self.UserID)
+        self.currentmode = self.result[0][4] # currentmode is a variable created to record the current mode of the pacemaker
+        self.parameterwindow = tkinter.Tk()
         self.parameterwindow.wm_title("Current Parameters")
         self.AAI = AAIParameterDatabase()
         self.VVI = VVIParameterDatabase()
@@ -824,7 +810,7 @@ class ParametersWindow:
             try:
                 self.VOOdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
                                         self.PulseWidthBox.get())
-            except sqlite3.InegrityError:
+            except sqlite3.IntegrityError:
                 self.VOOdatabase.Update(self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
                                         self.PulseWidthBox.get(),self.UserID)
         tkinter.messagebox.showinfo("Saved", "Saved")
@@ -894,9 +880,11 @@ class ParametersWindow:
 
 
 class ModeWindow:
-    def __init__(self):
-        self.cmode = " "
-        self.cmode = self.cMode()
+    def __init__(self, userID):
+        self.UserID = userID
+        self.login = LoginDatabase()
+        self.result = self.login.ReturnMode(self.UserID)
+        self.cmode = self.result[0][4]
         print(self.cmode)
         self.window = tkinter.Tk()
         self.window.wm_title("Pacemaker Modes")
@@ -920,9 +908,6 @@ class ModeWindow:
         self.VVIbutton = tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="VVI",
                        font=("times new roman", 15, "bold"), command=self.VVI)
         self.VVIbutton.grid(pady=15, column=1, row=5)
-
-    def cMode(self):
-        return self.cmode
 
     def AOO(self):
         self.cmode = "AOO"
@@ -993,7 +978,7 @@ class HomePage:
             tkinter.messagebox.showerror("Registeration Full", "Registeration full, please log in")
 
     def Login(self):
-        self.loginWindow = LoginWindow(self.userID)
+        self.loginWindow = LoginWindow()
 
     # FOR DEMONSTRATION ONLY
     def Display(self):
