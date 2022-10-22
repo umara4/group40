@@ -404,26 +404,19 @@ class ParametersWindow:
                                                       width=20, state='disabled')
             self.RateSmoothingBox = tkinter.ttk.Combobox(self.parameterwindow, values=self.RateSmoothingtype, width=20,
                                                          state='disabled')
+            self.search = []
             self.searchresult = self.AAI.Search(self.UserID)
-            for result in self.searchresult:
-                print(result)
-
             self.another = self.AAI.Empty(self.UserID)
-            print("another result: "+ str(self.another))
-            if self.another[0] == 1:
-                print("true")
-            #try:
-                self.LRLBox.set(str(self.searchresult[1]))
-                self.URLBox.set(self.searchresult[2])
-                self.PulseAmplitudeBox.set(self.searchresult[3])
-                self.PulseWidthBox.set(self.searchresult[4])
-                self.SensitivityBox.set(self.searchresult[5])
-                self.ARPBox.set(self.searchresult[6])
-                self.PVARPBox.set(self.searchresult[7])
-                self.HysteresisBox.set(self.searchresult[8])
-                self.RateSmoothingBox.set(self.searchresult[9])
-            # except IndexError:
-            #     self.AAIdefaultSetting()
+            if self.another[0][0] == 1:
+                self.LRLBox.set(self.searchresult[0][1])
+                self.URLBox.set(self.searchresult[0][2])
+                self.PulseAmplitudeBox.set(self.searchresult[0][3])
+                self.PulseWidthBox.set(self.searchresult[0][4])
+                self.SensitivityBox.set(self.searchresult[0][5])
+                self.ARPBox.set(self.searchresult[0][6])
+                self.PVARPBox.set(self.searchresult[0][7])
+                self.HysteresisBox.set(self.searchresult[0][8])
+                self.RateSmoothingBox.set(self.searchresult[0][9])
             else:
                 self.AAIdefaultSetting()
 
