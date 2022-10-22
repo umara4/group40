@@ -909,9 +909,6 @@ class ModeWindow:
                        font=("times new roman", 15, "bold"), command=self.VVI)
         self.VVIbutton.grid(pady=15, column=1, row=5)
 
-    def cMode(self):
-        return self.cmode
-
     def AOO(self):
         self.cmode = "AOO"
         self.login.setMode("UPDATE Login_table SET mode = ? WHERE UserID = ?", (self.cmode, self.UserID))
@@ -953,13 +950,14 @@ class HomePage:
     def __init__(self):
         self.homePageWindow = tkinter.Tk()
         self.homePageWindow.wm_title("Pacemaker Home Page")
+        self.login = LoginDatabase()
         bg_color = "blue"
         fg_color = "white"
         cha_color = "black"
         lbl_color = 'GREEN'
-        self.index = 0
+        self.num = self.login.Check()[0]
         self.UserIDALL = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
-        self.userID = self.UserIDALL[self.index]
+        self.userID = self.UserIDALL[self.num]
         tkinter.Label(self.homePageWindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color, text="Home Page",
                       font=("times new roman",20,"bold"), width=30).grid(pady=20, column=1, row=1)
         tkinter.Button(self.homePageWindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Register",
@@ -976,11 +974,8 @@ class HomePage:
         self.homePageWindow.mainloop()
 
     def Register(self):
-        self.database = LoginDatabase()
-        num = self.database.Check()[0]
-        if num < 10:
+        if self.num < 10:
             self.registerWindow = RegisterationWindow(self.userID)
-            self.index += 1
         else:
             tkinter.messagebox.showerror("Registeration Full", "Registeration full, please log in")
 
