@@ -508,6 +508,7 @@ class LoggedInWindow:
         self.window.wm_title("Welcome Page")
         self.login = LoginDatabase()
         self.UserID = userID
+        self.mode = self.login.ReturnMode(self.UserID)[0][4]
         bg_color = "blue"
         fg_color = "white"
         cha_color = "black"
@@ -533,12 +534,12 @@ class LoggedInWindow:
         self.modewindow = ModeWindow(self.UserID)
 
     def Parameters(self):
-        if self.modewindow.cmode == " ":
+        if self.mode == " ":
             tkinter.messagebox.showerror("Invalid Mode", "Select your mode first!")
         else:
             #store mode here
-            print(self.modewindow.cmode)
-            self.login.setMode("UPDATE Login_table SET mode = ? WHERE UserID = ?", (self.modewindow.cmode, self.UserID))
+            print(self.mode)
+            self.login.setMode("UPDATE Login_table SET mode = ? WHERE UserID = ?", (self.mode, self.UserID))
             try:
                 self.parameterWindow = ParametersWindow(self.UserID)
             except AttributeError:
@@ -560,13 +561,13 @@ class ParametersWindow:
         bg_color = "blue"
         fg_color = "white"
         cha_color = "black"
-        self.LRLtype = list(range(50,90))
-        self.URLtype = list(range(50,175))
+        self.LRLtype = list(range(50,91))
+        self.URLtype = list(range(50,176,5))
         self.PulseAmplitudetype = ["Off", "1.25V", "2.5V", "3.75V", "5.0V"]
         self.PulseWidthtype = [0.05]
         self.Sensitivitytype = [0.25, 0.5, 0.75]
-        self.RPtype = list(range(150,500))
-        self.PVARPtype = list(range(150,500))
+        self.RPtype = list(range(150,501,10))
+        self.PVARPtype = list(range(150,501,10))
         self.Hysteresistype = ["Off", "Same as LRL"]
         self.RateSmoothingtype = ["Off", "3%", "6%", "9%", "12%", "15%", "18%", "21%", "25%"]
 
@@ -911,6 +912,7 @@ class ModeWindow:
 
     def AOO(self):
         self.cmode = "AOO"
+        self.login.setMode("UPDATE Login_table SET mode = ? WHERE UserID = ?", (self.cmode, self.UserID))
         self.label1.config(text=self.cmode)
         self.AOObutton.config(state="disabled")
         self.VOObutton.config(state="active")
@@ -919,6 +921,7 @@ class ModeWindow:
 
     def VOO(self):
         self.cmode = "VOO"
+        self.login.setMode("UPDATE Login_table SET mode = ? WHERE UserID = ?", (self.cmode, self.UserID))
         self.label1.config(text=self.cmode)
         self.AOObutton.config(state="active")
         self.VOObutton.config(state="disabled")
@@ -927,6 +930,7 @@ class ModeWindow:
 
     def AAI(self):
         self.cmode = "AAI"
+        self.login.setMode("UPDATE Login_table SET mode = ? WHERE UserID = ?", (self.cmode, self.UserID))
         self.label1.config(text=self.cmode)
         self.AOObutton.config(state="active")
         self.VOObutton.config(state="active")
@@ -935,6 +939,7 @@ class ModeWindow:
 
     def VVI(self):
         self.cmode = "VVI"
+        self.login.setMode("UPDATE Login_table SET mode = ? WHERE UserID = ?", (self.cmode, self.UserID))
         self.label1.config(text=self.cmode)
         self.AOObutton.config(state="active")
         self.VOObutton.config(state="active")
