@@ -7,37 +7,37 @@ warning = True
 connection = True
 
 
-class VariableDatabase:
-    def __init__(self):
-        self.Connection = sqlite3.connect("variable.db")
-        self.Cursor = self.Connection.cursor()
-        self.Cursor.execute(
-            "CREATE TABLE IF NOT EXISTS Variable_table (userID PRIMARYKEY text unique, mode text)")
-
-    def __del__(self):
-        self.Cursor.close()
-        self.Connection.close()
-
-    def Insert(self, userID, mode):
-        self.Cursor.execute("INSERT INTO Variable_table VALUES (?, ?)",
-                              (userID, mode))
-        self.Connection.commit()
-
-    def Search(self, userID):
-        self.Cursor.execute("SELECT * FROM Variable_table WHERE UserID = ?", userID)
-        searchResults = self.Cursor.fetchall()
-        return searchResults
-
-    def Update(self, mode, userID):
-        self.Cursor.execute(
-            "UPDATE Variable_table SET Mode WHERE userID = ?",
-            (mode, userID))
-        self.connection.commit()
-
-    def Empty(self, userID):
-        self.Cursor.execute("SELECT EXISTS(SELECT * from Variable_table WHERE UserID = ?)", userID)
-        result = self.Cursor.fetchall()
-        return result
+# class VariableDatabase:
+#     def __init__(self):
+#         self.Connection = sqlite3.connect("variable.db")
+#         self.Cursor = self.Connection.cursor()
+#         self.Cursor.execute(
+#             "CREATE TABLE IF NOT EXISTS Variable_table (userID PRIMARYKEY text unique, mode text)")
+#
+#     def __del__(self):
+#         self.Cursor.close()
+#         self.Connection.close()
+#
+#     def Insert(self, userID, mode):
+#         self.Cursor.execute("INSERT INTO Variable_table VALUES (?, ?)",
+#                               (userID, mode))
+#         self.Connection.commit()
+#
+#     def Search(self, userID):
+#         self.Cursor.execute("SELECT * FROM Variable_table WHERE UserID = ?", userID)
+#         searchResults = self.Cursor.fetchall()
+#         return searchResults
+#
+#     def Update(self, mode, userID):
+#         self.Cursor.execute(
+#             "UPDATE Variable_table SET Mode WHERE userID = ?",
+#             (mode, userID))
+#         self.connection.commit()
+#
+#     def Empty(self, userID):
+#         self.Cursor.execute("SELECT EXISTS(SELECT * from Variable_table WHERE UserID = ?)", userID)
+#         result = self.Cursor.fetchall()
+#         return result
 
 
 class LoginDatabase:
@@ -45,15 +45,15 @@ class LoginDatabase:
         self.dbConnection = sqlite3.connect("userlogin.db")
         self.dbCursor = self.dbConnection.cursor()
         self.dbCursor.execute(
-            "CREATE TABLE IF NOT EXISTS Login_table (userID PRIMARYKEY text unique, firstname text, lastname text, password text)")
+            "CREATE TABLE IF NOT EXISTS Login_table (userID PRIMARYKEY text unique, firstname text, lastname text, password text, mode text)")
 
     def __del__(self):
         self.dbCursor.close()
         self.dbConnection.close()
 
-    def Insert(self, userID, firstname, lastname, password):
-        self.dbCursor.execute("INSERT INTO Login_table VALUES (?, ?, ?, ?)",
-                              (userID, firstname, lastname, password))
+    def Insert(self, userID, firstname, lastname, password, mode):
+        self.dbCursor.execute("INSERT INTO Login_table VALUES (?, ?, ?, ?, ?)",
+                              (userID, firstname, lastname, password, mode))
         self.dbConnection.commit()
 
     def Search(self,lastname,password):
@@ -246,6 +246,7 @@ class RegisterationWindow:
         bg_color = "Blue"
         fg_color = "white"
         cha_color = "black"
+        self.mode = ""
 
         self.firstname = tkinter.StringVar()
         self.lastname = tkinter.StringVar()
@@ -286,7 +287,8 @@ class RegisterationWindow:
         self.test = self.values.Validate(self.firstnameEntry.get(), self.lastnameEntry.get(),
                                          self.passwordEntry.get(),self.passwordreEntry.get())
         if self.test == "SUCCESS":
-            self.database.Insert(self.UserID, self.firstnameEntry.get(), self.lastnameEntry.get(), self.passwordEntry.get())
+            self.database.Insert(self.UserID, self.firstnameEntry.get(), self.lastnameEntry.get(), self.passwordEntry.get(),
+                                 self.mode)
             tkinter.messagebox.showinfo("Inserted data", "Successfully inserted the above data in the database")
         else:
             self.valueErrorMessage = "Invalid input in field " + self.test
@@ -454,19 +456,21 @@ class LoginDatabaseView:
         self.databaseView = tkinter.ttk.Treeview(self.databaseViewWindow)
         self.databaseView.grid(pady=5, column=1, row=2)
         self.databaseView["show"] = "headings"
-        self.databaseView["columns"] = ("UserID","firstname", "lastname","Password")
+        self.databaseView["columns"] = ("UserID","firstname", "lastname","Password", "Mode")
 
         # Treeview column headings
         self.databaseView.heading("UserID", text="UserID")
         self.databaseView.heading("firstname", text="First Name")
         self.databaseView.heading("lastname", text="Last Name")
         self.databaseView.heading("Password", text="Password")
+        self.databaseView.heading("Mode", text="Mode")
 
         # Treeview columns
         self.databaseView.column("UserID", width=100)
         self.databaseView.column("firstname", width=100)
         self.databaseView.column("lastname", width=100)
         self.databaseView.column("Password",width=100)
+        self.databaseView.column("Mode", width=100)
 
         for record in data:
             self.databaseView.insert('', 'end', values=(record))
@@ -535,8 +539,6 @@ class LoggedInWindow:
                        font=("times new roman", 15, "bold"), command=self.Mode).grid(pady=15, column=1, row=4)
         tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Parameters",
                        font=("times new roman", 15, "bold"), command=self.Parameters).grid(pady=15, column=1, row=5)
-        tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Display",
-                       font=("times new roman", 15, "bold"), command=self.Display).grid(pady=15, column=1, row=6)
 
         if warning:
             tkinter.Label(self.window, relief=tkinter.GROOVE, fg=warning_color, bg=bg_color,
@@ -557,25 +559,11 @@ class LoggedInWindow:
         except AttributeError:
             tkinter.messagebox.showerror("Invalid Mode","Select your mode first!")
 
-    def Display(self):
-        # self.database = AAIParameterDatabase()
-        # self.data = self.database.Display()
-        # self.displayWindow = AAIparametersDatabaseView(self.data)
-
-        # self.database = VVIParameterDatabase()
-        # self.data = self.database.Display()
-        # self.displayWindow = VVIparametersDatabaseView(self.data)
-
-        self.database = AOOParameterDatabase()
-        self.data = self.database.Display()
-        self.displayWindow = AOOparametersDatabaseView(self.data)
-
 
 class ParametersWindow:
     def __init__(self, modewindow, userID):
         self.currentmode = modewindow.cmode # currentmode is a variable created to record the current mode of the pacemaker
         # cmode is a variable in ModeWindow class that stores the current mode
-        print(self.currentmode)
         self.parameterwindow = tkinter.Tk()
         self.UserID = userID
         self.parameterwindow.wm_title("Current Parameters")
@@ -606,6 +594,8 @@ class ParametersWindow:
                        font=("times new roman", 15, "bold"), command=self.Edit).grid(pady=15, column=1, row=10)
         tkinter.Button(self.parameterwindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Save",
                        font=("times new roman", 15, "bold"), command=self.Save).grid(pady=15, column=2, row=10)
+        tkinter.Button(self.parameterwindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Display",
+                       font=("times new roman", 15, "bold"), command=self.Display).grid(pady=15, column=3, row=10)
         if self.currentmode == "AAI":
             tkinter.Label(self.parameterwindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
                           text="Atrial Amplitude: ",
@@ -839,6 +829,42 @@ class ParametersWindow:
                                         self.PulseWidthBox.get(),self.UserID)
         tkinter.messagebox.showinfo("Saved", "Saved")
 
+    def Edit(self):
+        self.LRLBox.config(state='active')
+        self.URLBox.config(state='active')
+        self.PulseAmplitudeBox.config(state='active')
+        self.PulseWidthBox.config(state='active')
+        if self.currentmode == "AAI":
+            self.SensitivityBox.config(state='active')
+            self.ARPBox.config(state='active')
+            self.PVARPBox.config(state='active')
+            self.HysteresisBox.config(state='active')
+            self.RateSmoothingBox.config(state='active')
+        elif self.currentmode == "VVI":
+            self.SensitivityBox.config(state='active')
+            self.VRPBox.config(state='active')
+            self.HysteresisBox.config(state='active')
+            self.RateSmoothingBox.config(state='active')
+        tkinter.messagebox.showinfo("Edit Mode on", "Edit Mode on")
+
+    def Display(self):
+        if self.currentmode == "AAI":
+            self.database = AAIParameterDatabase()
+            self.data = self.database.Display()
+            self.displayWindow = AAIparametersDatabaseView(self.data)
+        elif self.currentmode == "VVI":
+            self.database = VVIParameterDatabase()
+            self.data = self.database.Display()
+            self.displayWindow = VVIparametersDatabaseView(self.data)
+        elif self.currentmode == "AOO":
+            self.database = AOOParameterDatabase()
+            self.data = self.database.Display()
+            self.displayWindow = AOOparametersDatabaseView(self.data)
+        elif self.currentmode == "VOO":
+            self.database = VOOParameterDatabase()
+            self.data = self.database.Display()
+            self.displayWindow = VOOparametersDatabaseView(self.data)
+
     def AAIdefaultSetting(self):
         self.LRLBox.set(60)
         self.URLBox.set(90)
@@ -865,25 +891,6 @@ class ParametersWindow:
         self.URLBox.set(90)
         self.PulseAmplitudeBox.set("Off")
         self.PulseWidthBox.set(0.05)
-
-
-    def Edit(self):
-        self.LRLBox.config(state='active')
-        self.URLBox.config(state='active')
-        self.PulseAmplitudeBox.config(state='active')
-        self.PulseWidthBox.config(state='active')
-        if self.currentmode == "AAI":
-            self.SensitivityBox.config(state='active')
-            self.ARPBox.config(state='active')
-            self.PVARPBox.config(state='active')
-            self.HysteresisBox.config(state='active')
-            self.RateSmoothingBox.config(state='active')
-        elif self.currentmode == "VVI":
-            self.SensitivityBox.config(state='active')
-            self.VRPBox.config(state='active')
-            self.HysteresisBox.config(state='active')
-            self.RateSmoothingBox.config(state='active')
-        tkinter.messagebox.showinfo("Edit Mode on", "Edit Mode on")
 
 
 class ModeWindow:
@@ -967,14 +974,12 @@ class HomePage:
                        font=("times new roman",15,"bold"), command=self.Register).grid(pady=15, column=1, row=2)
         tkinter.Button(self.homePageWindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Login",
                        font=("times new roman",15,"bold"), command=self.Login).grid(pady=15, column=1, row=3)
+
+        #FOR DEMONSTRATION ONLY
         tkinter.Button(self.homePageWindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Display",
                        font=("times new roman",15,"bold"), command=self.Display).grid(pady=15, column=1,row=4)
-        tkinter.Button(self.homePageWindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Mode",
-                       font=("times new roman", 15, "bold"), command=self.Mode).grid(pady=15,column=1, row=5)
-        tkinter.Button(self.homePageWindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Parameters",
-                       font=("times new roman", 15, "bold"), command=self.Parameters).grid(pady=15, column=1, row=6)
         tkinter.Button(self.homePageWindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Exit",
-                       font=("times new roman",15,"bold"), command=self.homePageWindow.destroy).grid(pady=15,column=1,row=7)
+                       font=("times new roman",15,"bold"), command=self.homePageWindow.destroy).grid(pady=15,column=1,row=5)
 
         self.homePageWindow.mainloop()
 
@@ -987,29 +992,14 @@ class HomePage:
         else:
             tkinter.messagebox.showerror("Registeration Full", "Registeration full, please log in")
 
+    def Login(self):
+        self.loginWindow = LoginWindow(self.userID)
+
+    # FOR DEMONSTRATION ONLY
     def Display(self):
         self.database = LoginDatabase()
         self.data = self.database.Display()
         self.displayWindow = LoginDatabaseView(self.data)
 
-    def Login(self):
-        self.loginWindow = LoginWindow(self.userID)
-
-    def Mode(self):
-        self.modeWindow = ModeWindow()
-
-    def Parameters(self):
-        pass
-        # try:
-        #     print(1)
-        #     self.parameterWindow = ParametersWindow(self.modeWindow)
-        #     print(2)
-        # except AttributeError:
-        #     print(3)
-        #     tkinter.messagebox.showerror("Invalid Mode", "Select your mode first!")
-        #     print(4)
-        # finally:
-        #     self.parameterWindow = ParametersWindow(self.modeWindow)
-        #self.parameterWindow = ParametersWindow(self.modeWindow, self.userID)
 
 homepage = HomePage()
