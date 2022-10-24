@@ -30,9 +30,9 @@ class LoginDatabase:
                               (userID, firstname, lastname, password, mode))
         self.dbConnection.commit()
     #search for any previous record of the provided lastname and password
-    def Search(self,lastname,password):
-        self.dbCursor.execute("SELECT * FROM Login_table WHERE lastname = ? and password = ?",
-                              (lastname,password))
+    def Search(self,firstname, lastname, password):
+        self.dbCursor.execute("SELECT * FROM Login_table WHERE firstname = ? and lastname = ? and password = ?",
+                              (firstname, lastname,password))
         searchResults = self.dbCursor.fetchall()
         return searchResults
     #display the entire table
@@ -234,10 +234,13 @@ class Values:
 
 #opens and initializes the registration window
 class RegisterationWindow:
-    def __init__(self, userID):
+    def __init__(self, userID, homewindow):
         self.window = tkinter.Tk()
         self.UserID = userID
         self.window.wm_title("Registration")
+        self.homepage = homewindow
+        if 'normal' == self.window.state():
+            self.homepage.withdraw()
         bg_color = "Blue"
         fg_color = "white"
         cha_color = "black"
@@ -274,8 +277,18 @@ class RegisterationWindow:
         tkinter.Button(self.window, width=10, fg=cha_color, bg=bg_color, font=("times new roman",10,"bold"),
                        text="Reset", command=self.Reset).grid(pady=15, padx=5, column=2, row=14)
         tkinter.Button(self.window, width=10, fg=cha_color, bg=bg_color, font=("times new roman",10,"bold"),
-                       text="Close", command=self.window.destroy).grid(pady=15, padx=5, column=3,row=14)
+                       text="Close", command=self.close).grid(pady=15, padx=5, column=3,row=14)
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.window.mainloop()
+
+
+    def on_closing(self):
+        self.window.destroy()
+        self.homepage.deiconify()
+
+    def close(self):
+        self.window.destroy()
+        self.homepage.deiconify()
 
     def Submit(self):
         self.values = Values()
@@ -290,6 +303,7 @@ class RegisterationWindow:
             tkinter.messagebox.showinfo("Inserted data", "Successfully registered. Please Log in now!")
             #closes the registration window
             self.window.destroy()
+            self.homepage.deiconify()
             #return error message
         else:
             self.valueErrorMessage = "Invalid input in field " + self.test
@@ -491,6 +505,8 @@ class LoginWindow:
         cha_color = "black"
         #creates an object of the homepage
         self.homescreen = homepagewindow
+        if 'normal' == self.loginwindow.state():
+            self.homescreen.withdraw()
         #sets the type of the input
         self.firstname = tkinter.StringVar()
         self.lastname = tkinter.StringVar()
@@ -513,13 +529,24 @@ class LoginWindow:
         #submit the login request
         tkinter.Button(self.loginwindow, width=10, fg=cha_color, bg=bg_color, font=("times new roman", 10, "bold"),
                        text="Submit", command=self.Submit).grid(pady=15, padx=5, column=1,row=14)
+        tkinter.Button(self.loginwindow, width=10, fg=cha_color, bg=bg_color, font=("times new roman", 10, "bold"),
+                       text="Back to Home", command=self.Home).grid(pady=15, padx=5, column=3, row=14)
+        self.loginwindow.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.loginwindow.mainloop()
+
+    def Home(self):
+        self.loginwindow.destroy()
+        self.homescreen.deiconify()
+
+    def on_closing(self):
+        self.loginwindow.destroy()
+        self.homescreen.deiconify()
 
     def Submit(self):
         #opens the login database and check for users with the same last name and password
         self.values = Values()
         self.database = LoginDatabase()
-        self.data = self.database.Search(self.lastnameEntry.get(), self.passwordEntry.get())
+        self.data = self.database.Search(self.firstnameEntry.get(),self.lastnameEntry.get(), self.passwordEntry.get())
         if self.data:
             #if found, you are logged in
             tkinter.messagebox.showinfo('Login success', "You are logged in!")
@@ -553,6 +580,8 @@ class LoggedInWindow:
                        font=("times new roman", 15, "bold"), command=self.Mode).grid(pady=15, column=1, row=4)
         tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Parameters",
                        font=("times new roman", 15, "bold"), command=self.Parameters).grid(pady=15, column=1, row=5)
+        tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Sign Out",
+                       font=("times new roman", 15, "bold"), command=self.Signout).grid(pady=15, column=1, row=6)
         #if another pacemaker is nearby, it will trigger an alert on the window
         if warning:
             tkinter.Label(self.window, relief=tkinter.GROOVE, fg=warning_color, bg=bg_color,
@@ -563,6 +592,10 @@ class LoggedInWindow:
                       text="Status update: Connection with DCM is " + "ON" if (connection == True)
                       else "Status update: Connection with DCM is " + "OFF",font=("times new roman", 10, "bold"),
                       width=50).grid(pady=20, column=1, row=2)
+
+    def Signout(self):
+        self.window.destroy()
+        self.homepage = HomePage()
     #directs to the mode window
     def Mode(self):
         self.modewindow = ModeWindow(self.UserID)
@@ -1016,25 +1049,33 @@ class HomePage:
         #the buttons
         tkinter.Label(self.homePageWindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color, text="Home Page",
                       font=("times new roman",20,"bold"), width=30).grid(pady=20, column=1, row=1)
-        tkinter.Button(self.homePageWindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Register",
-                       font=("times new roman",15,"bold"), command=self.Register).grid(pady=15, column=1, row=2)
-        tkinter.Button(self.homePageWindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Login",
-                       font=("times new roman",15,"bold"), command=self.Login).grid(pady=15, column=1, row=3)
+        self.registerbutton = tkinter.Button(self.homePageWindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Register",
+                       font=("times new roman",15,"bold"), command=self.Register)
+        self.registerbutton.grid(pady=15, column=1, row=2)
+        self.loginbutton = tkinter.Button(self.homePageWindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Login",
+                       font=("times new roman",15,"bold"), command=self.Login)
+        self.loginbutton.grid(pady=15, column=1, row=3)
         tkinter.Button(self.homePageWindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Exit",
-                       font=("times new roman",15,"bold"), command=self.homePageWindow.destroy).grid(pady=15,column=1,row=4)
-
+                       font=("times new roman",15,"bold"), command=self.homePageWindow.destroy).grid(pady=15,column=1,row=5)
         self.homePageWindow.mainloop()
     #checks for the current userID and if the user limit is not met, will be directed to the registration page
     def Register(self):
         self.num = self.login.Check()[0]
         self.userID = self.UserIDALL[self.num]
         if self.num < 10:
-            self.registerWindow = RegisterationWindow(self.userID)
+            self.registerWindow = RegisterationWindow(self.userID, self.homePageWindow)
         else:
             tkinter.messagebox.showerror("Registeration Full", "Registeration full, please log in")
+
     #directs to the login page
     def Login(self):
         self.loginWindow = LoginWindow(self.homePageWindow)
+
+    # FOR DEMONSTRATION ONLY
+    def Display(self):
+        self.database = LoginDatabase()
+        self.data = self.database.Display()
+        self.displayWindow = LoginDatabaseView(self.data)
 
 
 homepage = HomePage()
