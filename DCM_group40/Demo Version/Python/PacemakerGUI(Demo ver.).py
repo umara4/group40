@@ -906,8 +906,10 @@ class LoggedInWindow:
                        font=("times new roman", 15, "bold"), command=self.Mode).grid(pady=15, column=1, row=4)
         tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Parameters",
                        font=("times new roman", 15, "bold"), command=self.Parameters).grid(pady=15, column=1, row=5)
+        tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Load Graph",
+                       font=("times new roman", 15, "bold"), command=self.Graph).grid(pady=15, column=1, row=6)
         tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Sign Out",
-                       font=("times new roman", 15, "bold"), command=self.Signout).grid(pady=15, column=1, row=6)
+                       font=("times new roman", 15, "bold"), command=self.Signout).grid(pady=15, column=1, row=7)
         #if another pacemaker is nearby, it will trigger an alert on the window
         if warning:
             tkinter.Label(self.window, relief=tkinter.GROOVE, fg=warning_color, bg=bg_color,
@@ -918,7 +920,8 @@ class LoggedInWindow:
                       text="Status update: Connection with DCM is " + "ON" if (connection == True)
                       else "Status update: Connection with DCM is " + "OFF",font=("times new roman", 10, "bold"),
                       width=50).grid(pady=20, column=1, row=2)
-
+    def Graph(self):
+        pass
     def Signout(self):
         self.window.destroy()
         self.homepage = HomePage()
@@ -1057,7 +1060,6 @@ class ParametersWindow:
             self.AOORsetup(bg_color, fg_color)
             self.search = []
             self.searchresult = self.AOOR.Search(self.UserID)
-            print(self.searchresult)
             self.another = self.AOOR.Empty(self.UserID)
             if self.another[0][0] == 1:
                 self.AOORVOORinputrep()
@@ -1110,7 +1112,7 @@ class ParametersWindow:
                 self.PulseWidthBox.set(self.searchresult[0][4])
                 self.MaxSensorRateBox.set(self.searchresult[0][5])
                 self.SensitivityBox.set(self.searchresult[0][6])
-                self.ARPBox.set(self.searchresult[0][7])
+                self.VRPBox.set(self.searchresult[0][7])
                 self.HysteresisBox.set(self.searchresult[0][8])
                 self.RateSmoothingBox.set(self.searchresult[0][9])
                 self.ActivityThresholdBox.set(self.searchresult[0][10])
@@ -1185,12 +1187,12 @@ class ParametersWindow:
             self.ResponseFactorBox.config(state='disabled')
             self.MaxSensorRateBox.config(state='disabled')
             try:
-                self.AOORdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.MaxSensorRateBox.get(), self.PulseAmplitudeBox.get(),
-                                        self.PulseWidthBox.get(), self.ActivityThresholdBox.get(), self.ReactionTimeBox.get(),
+                self.AOORdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get(),self.MaxSensorRateBox.get(), self.ActivityThresholdBox.get(), self.ReactionTimeBox.get(),
                                         self.ResponseFactorBox.get(), self.RecoveryTimeBox.get())
             except sqlite3.IntegrityError:
-                self.AOORdatabase.Update(self.LRLBox.get(), self.URLBox.get(), self.MaxSensorRateBox.get(), self.PulseAmplitudeBox.get(),
-                                        self.PulseWidthBox.get(),self.ActivityThresholdBox.get(), self.ReactionTimeBox.get(),
+                self.AOORdatabase.Update(self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get(), self.MaxSensorRateBox.get(), self.ActivityThresholdBox.get(), self.ReactionTimeBox.get(),
                                         self.ResponseFactorBox.get(), self.RecoveryTimeBox.get(), self.UserID)
         elif self.currentmode == "VOOR":
             self.ActivityThresholdBox.config(state='disabled')
@@ -1199,12 +1201,12 @@ class ParametersWindow:
             self.ResponseFactorBox.config(state='disabled')
             self.MaxSensorRateBox.config(state='disabled')
             try:
-                self.AOORdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.MaxSensorRateBox.get(), self.PulseAmplitudeBox.get(),
-                                        self.PulseWidthBox.get(), self.ActivityThresholdBox.get(), self.ReactionTimeBox.get(),
+                self.VOORdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get(), self.MaxSensorRateBox.get(), self.ActivityThresholdBox.get(), self.ReactionTimeBox.get(),
                                         self.ResponseFactorBox.get(), self.RecoveryTimeBox.get())
             except sqlite3.IntegrityError:
-                self.AOORdatabase.Update(self.LRLBox.get(), self.URLBox.get(), self.MaxSensorRateBox.get(), self.PulseAmplitudeBox.get(),
-                                        self.PulseWidthBox.get(),self.ActivityThresholdBox.get(), self.ReactionTimeBox.get(),
+                self.VOORdatabase.Update(self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get(), self.MaxSensorRateBox.get(), self.ActivityThresholdBox.get(), self.ReactionTimeBox.get(),
                                         self.ResponseFactorBox.get(), self.RecoveryTimeBox.get(), self.UserID)
         elif self.currentmode == "AAIR":
             self.MaxSensorRateBox.config(state='disabled')
@@ -1218,14 +1220,14 @@ class ParametersWindow:
             self.ReactionTimeBox.config(state='disabled')
             self.ResponseFactorBox.config(state='disabled')
             try:
-                self.AAIRdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.MaxSensorRateBox.get(), self.PulseAmplitudeBox.get(),
-                                        self.PulseWidthBox.get(), self.SensitivityBox.get(), self.ARPBox.get(), self.PVARPBox.get(),
+                self.AAIRdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get(), self.MaxSensorRateBox.get(), self.SensitivityBox.get(), self.ARPBox.get(), self.PVARPBox.get(),
                                         self.HysteresisBox.get(), self.RateSmoothingBox.get(),
                                         self.ActivityThresholdBox.get(), self.ReactionTimeBox.get(),
                                         self.ResponseFactorBox.get(), self.RecoveryTimeBox.get())
             except sqlite3.IntegrityError:
-                self.AAIRdatabase.Update(self.LRLBox.get(), self.URLBox.get(), self.MaxSensorRateBox.get(), self.PulseAmplitudeBox.get(),
-                                        self.PulseWidthBox.get(), self.SensitivityBox.get(), self.ARPBox.get(), self.PVARPBox.get(),
+                self.AAIRdatabase.Update(self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get(), self.MaxSensorRateBox.get(), self.SensitivityBox.get(), self.ARPBox.get(), self.PVARPBox.get(),
                                         self.HysteresisBox.get(), self.RateSmoothingBox.get(),
                                         self.ActivityThresholdBox.get(), self.ReactionTimeBox.get(),
                                         self.ResponseFactorBox.get(), self.RecoveryTimeBox.get(), self.UserID)
@@ -1241,14 +1243,14 @@ class ParametersWindow:
             self.ResponseFactorBox.config(state='disabled')
             self.MaxSensorRateBox.config(state='disabled')
             try:
-                self.VVIRdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.MaxSensorRateBox.get(), self.PulseAmplitudeBox.get(),
-                                        self.PulseWidthBox.get(), self.SensitivityBox.get(), self.ARPBox.get(),
+                self.VVIRdatabase.Insert(self.UserID, self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get(), self.MaxSensorRateBox.get(), self.SensitivityBox.get(), self.ARPBox.get(),
                                         self.HysteresisBox.get(), self.RateSmoothingBox.get(),
                                         self.ActivityThresholdBox.get(), self.ReactionTimeBox.get(),
                                         self.ResponseFactorBox.get(), self.RecoveryTimeBox.get())
             except sqlite3.IntegrityError:
-                self.VVIRdatabase.Update(self.LRLBox.get(), self.URLBox.get(), self.MaxSensorRateBox.get(), self.PulseAmplitudeBox.get(),
-                                        self.PulseWidthBox.get(), self.SensitivityBox.get(), self.ARPBox.get(),
+                self.VVIRdatabase.Update(self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
+                                        self.PulseWidthBox.get(), self.MaxSensorRateBox.get(), self.SensitivityBox.get(), self.ARPBox.get(),
                                         self.HysteresisBox.get(), self.RateSmoothingBox.get(),
                                         self.ActivityThresholdBox.get(), self.ReactionTimeBox.get(),
                                         self.ResponseFactorBox.get(), self.RecoveryTimeBox.get(), self.UserID)
@@ -1258,9 +1260,9 @@ class ParametersWindow:
     def AOORVOORinputrep(self):
         self.LRLBox.set(self.searchresult[0][1])
         self.URLBox.set(self.searchresult[0][2])
-        self.MaxSensorRateBox.set(self.searchresult[0][3])
-        self.PulseAmplitudeBox.set(self.searchresult[0][4])
-        self.PulseWidthBox.set(self.searchresult[0][5])
+        self.PulseAmplitudeBox.set(self.searchresult[0][3])
+        self.PulseWidthBox.set(self.searchresult[0][4])
+        self.MaxSensorRateBox.set(self.searchresult[0][5])
         self.ActivityThresholdBox.set(self.searchresult[0][6])
         self.ReactionTimeBox.set(self.searchresult[0][7])
         self.ResponseFactorBox.set(self.searchresult[0][8])
@@ -1269,6 +1271,7 @@ class ParametersWindow:
         while start < stop:
             yield float(start)
             start += decimal.Decimal(step)
+
     #make the comboxes editable again
     def Edit(self):
         tkinter.messagebox.showinfo("Edit Mode on", "Edit Mode on")
@@ -1287,13 +1290,19 @@ class ParametersWindow:
             self.VRPBox.config(state='readonly')
             self.HysteresisBox.config(state='readonly')
             self.RateSmoothingBox.config(state='readonly')
-        elif self.currentmode == "AOOR" or "VOOR":
+        elif self.currentmode == "AOOR":
             self.MaxSensorRateBox.config(state='readonly')
             self.ActivityThresholdBox.config(state='readonly')
             self.RecoveryTimeBox.config(state='readonly')
             self.ReactionTimeBox.config(state='readonly')
             self.ResponseFactorBox.config(state='readonly')
-        elif self.currentmode == "AAIR" or "VVIR":
+        elif self.currentmode == "VOOR":
+            self.MaxSensorRateBox.config(state='readonly')
+            self.ActivityThresholdBox.config(state='readonly')
+            self.RecoveryTimeBox.config(state='readonly')
+            self.ReactionTimeBox.config(state='readonly')
+            self.ResponseFactorBox.config(state='readonly')
+        elif self.currentmode == "AAIR":
             self.MaxSensorRateBox.config(state='readonly')
             self.ActivityThresholdBox.config(state='readonly')
             self.RecoveryTimeBox.config(state='readonly')
@@ -1303,8 +1312,17 @@ class ParametersWindow:
             self.ARPBox.config(state='readonly')
             self.HysteresisBox.config(state='readonly')
             self.RateSmoothingBox.config(state='readonly')
-            if self.currentmode == "AAIR":
-                self.PVARPBox.config(state='readonly')
+            self.PVARPBox.config(state='readonly')
+        elif self.currentmode == "VVIR":
+            self.MaxSensorRateBox.config(state='readonly')
+            self.ActivityThresholdBox.config(state='readonly')
+            self.RecoveryTimeBox.config(state='readonly')
+            self.ReactionTimeBox.config(state='readonly')
+            self.ResponseFactorBox.config(state='readonly')
+            self.SensitivityBox.config(state='readonly')
+            self.VRPBox.config(state='readonly')
+            self.HysteresisBox.config(state='readonly')
+            self.RateSmoothingBox.config(state='readonly')
 
         #display the saved parameters in the database
     def Display(self):
@@ -1402,7 +1420,7 @@ class ParametersWindow:
         self.PulseAmplitudeBox.set(5.0)
         self.PulseWidthBox.set(1)
         self.SensitivityBox.set(2.5)
-        self.ARPBox.set(320)
+        self.VRPBox.set(320)
         self.HysteresisBox.set("Off")
         self.RateSmoothingBox.set("Off")
         self.ActivityThresholdBox.set('Med')
@@ -1418,9 +1436,9 @@ class ParametersWindow:
     def AOORVOORdefaultSetting(self):
         self.LRLBox.set(60)
         self.URLBox.set(120)
-        self.MaxSensorRateBox.set(120)
         self.PulseAmplitudeBox.set(5.0)
         self.PulseWidthBox.set(1)
+        self.MaxSensorRateBox.set(120)
         self.ActivityThresholdBox.set('Med')
         self.ReactionTimeBox.set(30)
         self.ResponseFactorBox.set(8)
@@ -1555,18 +1573,18 @@ class ParametersWindow:
         self.AOORVOORRepsetup(bg_color, fg_color)
         tkinter.Label(self.parameterwindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
                       text="Atrial Amplitude: ",
-                      font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=4)
+                      font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=3)
         tkinter.Label(self.parameterwindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
                       text="Atrial Pulse Width: ",
-                      font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=5)
+                      font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=4)
     def VOORsetup(self, bg_color, fg_color):
         self.AOORVOORRepsetup(bg_color, fg_color)
         tkinter.Label(self.parameterwindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
                       text="Ventricular Amplitude: ",
-                      font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=4)
+                      font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=3)
         tkinter.Label(self.parameterwindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
                       text="Ventricular Pulse Width: ",
-                      font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=5)
+                      font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=4)
     def AAIRsetup(self, bg_color, fg_color):
         tkinter.Label(self.parameterwindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
                       text="Maximum Sensor Rate: ",
@@ -1649,16 +1667,16 @@ class ParametersWindow:
                       text="Maximum Sensor Rate: ",
                       font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=3)
         tkinter.Label(self.parameterwindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
-                      text="Atrial Amplitude: ",
+                      text="Ventricular Amplitude: ",
                       font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=4)
         tkinter.Label(self.parameterwindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
-                      text="Atrial Pulse Width: ",
+                      text="Ventricular Pulse Width: ",
                       font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=5)
         tkinter.Label(self.parameterwindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
-                      text="Atrial Sensitivity: ",
+                      text="Ventricularl Sensitivity: ",
                       font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=6)
         tkinter.Label(self.parameterwindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
-                      text="ARP: ",
+                      text="VRP: ",
                       font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=7)
         tkinter.Label(self.parameterwindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
                       text="Hysteresis: ",
@@ -1690,7 +1708,7 @@ class ParametersWindow:
                                                   state='disabled')
         self.SensitivityBox = tkinter.ttk.Combobox(self.parameterwindow, values=self.Sensitivitytype, width=20,
                                                    state='disabled')
-        self.ARPBox = tkinter.ttk.Combobox(self.parameterwindow, values=self.RPtype, width=20, state='disabled')
+        self.VRPBox = tkinter.ttk.Combobox(self.parameterwindow, values=self.RPtype, width=20, state='disabled')
         self.HysteresisBox = tkinter.ttk.Combobox(self.parameterwindow, values=self.Hysteresistype,
                                                   width=20, state='disabled')
         self.RateSmoothingBox = tkinter.ttk.Combobox(self.parameterwindow, values=self.RateSmoothingtype, width=20,
@@ -1708,18 +1726,19 @@ class ParametersWindow:
         self.URLBox.grid(pady=5, column=3, row=2)
         self.PulseAmplitudeBox.grid(pady=5, column=3, row=3)
         self.PulseWidthBox.grid(pady=5, column=3, row=4)
-        self.SensitivityBox.grid(pady=5, column=3, row=5)
-        self.ARPBox.grid(pady=5, column=3, row=6)
-        self.HysteresisBox.grid(pady=5, column=3, row=7)
-        self.RateSmoothingBox.grid(pady=5, column=3, row=8)
-        self.ActivityThresholdBox.grid(pady=5, column=3, row=9)
-        self.ReactionTimeBox.grid(pady=5, column=3, row=10)
-        self.ResponseFactorBox.grid(pady=5, column=3, row=11)
-        self.RecoveryTimeBox.grid(pady=5, column=3, row=12)
+        self.MaxSensorRateBox.grid(pady=5, column=3, row=5)
+        self.SensitivityBox.grid(pady=5, column=3, row=6)
+        self.VRPBox.grid(pady=5, column=3, row=7)
+        self.HysteresisBox.grid(pady=5, column=3, row=8)
+        self.RateSmoothingBox.grid(pady=5, column=3, row=9)
+        self.ActivityThresholdBox.grid(pady=5, column=3, row=10)
+        self.ReactionTimeBox.grid(pady=5, column=3, row=11)
+        self.ResponseFactorBox.grid(pady=5, column=3, row=12)
+        self.RecoveryTimeBox.grid(pady=5, column=3, row=13)
     def AOORVOORRepsetup(self, bg_color, fg_color):
         tkinter.Label(self.parameterwindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
                       text="Maximum Sensor Rate: ",
-                      font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=3)
+                      font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=5)
         tkinter.Label(self.parameterwindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
                       text="Activity Threshold: ",
                       font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=6)
