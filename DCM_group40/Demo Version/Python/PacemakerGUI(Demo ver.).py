@@ -4,6 +4,7 @@ import tkinter.messagebox
 import sqlite3
 import decimal
 import math
+import serial
 
 #two variables that are subject to change based on the pacemaker.
 #warning is a boolean to show that there is another pacemaker nearby
@@ -11,9 +12,11 @@ warning = True
 #connection is a boolean to show that the connection with the pacemaker
 connection = True
 
+
 class sendSerial:
-    def __init__(self, currentmode):
+    def __init__(self, currentmode, UserID):
         self.cmode = currentmode
+        self.userID = UserID
         self.AOO = AOOParameterDatabase()
         self.VOO = VOOParameterDatabase()
         self.AAI = AAIParameterDatabase()
@@ -22,6 +25,29 @@ class sendSerial:
         self.VOOR = VOORParameterDatabase()
         self.AAIR = AAIRParameterDatabase()
         self.VVIR = VVIRParameterDatabase()
+        self.mode = {
+            'AOO': 1,
+            'VOO': 2,
+            'AAI': 3,
+            'VVI': 4,
+            'AOOR': 5,
+            'VOOR': 6,
+            'AAIR': 7,
+            'VVIR': 8
+        }
+        self.ActivityThresholdDict = {
+            "V-Low": 1,
+            'Low': 2,
+            'Med-Low': 3,
+            'Med': 4,
+            'Med-High': 5,
+            'High': 6,
+            'V-High': 7
+        }
+        self.ser = serial.Serial('/dev/tty.usbmodem0000001234561',115200) #mac
+        #ser = serial.Serial('COM4', 115200)  # windows
+
+
         # self.LRLtype = list(range(30, 50, 5)) + list(range(50, 90)) + list(range(90, 180, 5))
         # self.URLtype = list(range(50, 180, 5))
         # self.PulseAmplitudetype = ["Off"] + list(self.float_range(1, 5.1, '0.1'))
@@ -36,13 +62,25 @@ class sendSerial:
         # self.RecoveryTime = list(range(2, 17, 1))
 
         if self.cmode == "AOO":
-            pass
+            self.AOO_receive = self.AOO.Search(self.userID)
+            self.enter = [self.mode[self.cmode]] + self.AOO_receive
+            self.ser.write(self.enter)
+            print("test file sent")
         elif self.cmode == "VOO":
-            pass
+            self.VOO_receive = self.VOO.Search(self.userID)
+            self.enter = [self.mode[self.cmode]] + self.VOO_receive
+            self.ser.write(self.enter)
+            print("test file sent")
         elif self.cmode == "AAI":
-            pass
+            self.AAI_receive = self.AAI.Search(self.userID)
+            self.enter = [self.mode[self.cmode]] + self.AAI_receive
+            self.ser.write(self.enter)
+            print("test file sent")
         elif self.cmode == "VVI":
-            pass
+            self.VVI_receive = self.VVI.Search(self.userID)
+            self.enter = [self.mode[self.cmode]] + self.VVI_receive
+            self.ser.write(self.enter)
+            print("test file sent")
         elif self.cmode == "AOOR":
             pass
         elif self.cmode == "VOOR":
@@ -51,6 +89,7 @@ class sendSerial:
             pass
         elif self.cmode == "VVIR":
             pass
+
 
 #stores the login creditals
 class LoginDatabase:
@@ -104,6 +143,7 @@ class LoginDatabase:
         result = self.dbCursor.fetchall()
         return result
 
+
 #stores the AAI parameters
 class AAIParameterDatabase:
     def __init__(self):
@@ -141,6 +181,7 @@ class AAIParameterDatabase:
         self.Cursor.execute("SELECT EXISTS(SELECT * from AAIparameter_table WHERE UserID = ?)", (userID,))
         result = self.Cursor.fetchall()
         return result
+
 
 #stores the VVI parameters
 class VVIParameterDatabase:
@@ -180,6 +221,7 @@ class VVIParameterDatabase:
         result = self.Cursor.fetchall()
         return result
 
+
 #stores the AOO parameters
 class AOOParameterDatabase:
     def __init__(self):
@@ -217,6 +259,7 @@ class AOOParameterDatabase:
         self.Cursor.execute("SELECT EXISTS(SELECT * from AOOparameter_table WHERE UserID = ?)", (userID,))
         result = self.Cursor.fetchall()
         return result
+
 
 #stores the VOO parameters
 class VOOParameterDatabase:
@@ -256,6 +299,7 @@ class VOOParameterDatabase:
         result = self.Cursor.fetchall()
         return result
 
+
 class AOORParameterDatabase:
     def __init__(self):
         self.connection = sqlite3.connect("AOORparameter.db")
@@ -292,6 +336,7 @@ class AOORParameterDatabase:
         self.Cursor.execute("SELECT EXISTS(SELECT * from AOORparameter_table WHERE UserID = ?)", (userID,))
         result = self.Cursor.fetchall()
         return result
+
 
 class VOORParameterDatabase:
     def __init__(self):
@@ -330,6 +375,7 @@ class VOORParameterDatabase:
         result = self.Cursor.fetchall()
         return result
 
+
 class AAIRParameterDatabase:
     def __init__(self):
         self.connection = sqlite3.connect("AAIRparameter.db")
@@ -367,6 +413,7 @@ class AAIRParameterDatabase:
         result = self.Cursor.fetchall()
         return result
 
+
 class VVIRParameterDatabase:
     def __init__(self):
         self.connection = sqlite3.connect("VVIRparameter.db")
@@ -395,7 +442,7 @@ class VVIRParameterDatabase:
     #update the database
     def Update(self, LRL, URL,Ventricular_Amplitude, Ventricular_Width, Max_Sensor_Rate, Ventricular_Sensitivity, VRP, Activity_Threshold, Reaction_Time, Response_Factor, Recovery_Time, userID):
         self.Cursor.execute(
-            "UPDATE VVIRparameter_table SET LRL = ?, URL = ?, AtrialAmplitude = ?, AtrialWidth = ?, MaxSensorRate = ?, AtrialSensitivity = ?, ARP = ?, PVARP = ?, ActivityThreshold = ?, ReactionTime = ?, ResponseFactor = ?, RecoveryTime = ? WHERE userID = ?",
+            "UPDATE VVIRparameter_table SET LRL = ?, URL = ?, VentricularAmplitude = ?, VentricularWidth = ?, MaxSensorRate = ?, VentricularSensitivity = ?, VRP = ?, ActivityThreshold = ?, ReactionTime = ?, ResponseFactor = ?, RecoveryTime = ? WHERE userID = ?",
             (LRL, URL,Ventricular_Amplitude, Ventricular_Width, Max_Sensor_Rate, Ventricular_Sensitivity, VRP, Activity_Threshold, Reaction_Time, Response_Factor, Recovery_Time, userID))
         self.connection.commit()
     #checking if there is anything using the userID in the database, returns boolean
@@ -403,6 +450,7 @@ class VVIRParameterDatabase:
         self.Cursor.execute("SELECT EXISTS(SELECT * from VVIRparameter_table WHERE UserID = ?)", (userID,))
         result = self.Cursor.fetchall()
         return result
+
 
 #checking mechanism for the inputs
 class Values:
@@ -422,6 +470,7 @@ class Values:
             return "user already exist"
         else:
             return "SUCCESS"
+
 
 #opens and initializes the registration window
 class RegisterationWindow:
@@ -507,6 +556,7 @@ class RegisterationWindow:
         self.passwordEntry.delete(0,tkinter.END)
         self.passwordreEntry.delete(0, tkinter.END)
 
+
 #the database that will load when displaying the AAI parameters
 class AAIparametersDatabaseView:
     def __init__(self, data):
@@ -545,6 +595,7 @@ class AAIparametersDatabaseView:
 
         self.databaseViewWindow.mainloop()
 
+
 #the database that will load when displaying the VVI parameters
 class VVIparametersDatabaseView:
     def __init__(self, data):
@@ -581,6 +632,7 @@ class VVIparametersDatabaseView:
 
         self.databaseViewWindow.mainloop()
 
+
 #the database that will load when displaying the AOO parameters
 class AOOparametersDatabaseView:
     def __init__(self, data):
@@ -612,6 +664,7 @@ class AOOparametersDatabaseView:
 
         self.databaseViewWindow.mainloop()
 
+
 #the database that will load when displaying the VOO parameters
 class VOOparametersDatabaseView:
     def __init__(self, data):
@@ -642,6 +695,7 @@ class VOOparametersDatabaseView:
             self.databaseView.insert('', 'end', values=(record))
 
         self.databaseViewWindow.mainloop()
+
 #AOOR parameters database
 class AOORparametersDatabaseView:
     def __init__(self, data):
@@ -683,6 +737,7 @@ class AOORparametersDatabaseView:
 
         self.databaseViewWindow.mainloop()
 
+
 class VOORparametersDatabaseView:
     def __init__(self, data):
         self.databaseViewWindow = tkinter.Tk()
@@ -722,6 +777,7 @@ class VOORparametersDatabaseView:
             self.databaseView.insert('', 'end', values=(record))
 
         self.databaseViewWindow.mainloop()
+
 
 class AAIRparametersDatabaseView:
     def __init__(self, data):
@@ -769,6 +825,7 @@ class AAIRparametersDatabaseView:
 
         self.databaseViewWindow.mainloop()
 
+
 class VVIRparametersDatabaseView:
     def __init__(self, data):
         self.databaseViewWindow = tkinter.Tk()
@@ -811,6 +868,7 @@ class VVIRparametersDatabaseView:
             self.databaseView.insert('', 'end', values=(record))
 
         self.databaseViewWindow.mainloop()
+
 
 #the database that will load when displaying the table
 class LoginDatabaseView:
@@ -1271,6 +1329,9 @@ class ParametersWindow:
                                         self.ResponseFactorBox.get(), self.RecoveryTimeBox.get(), self.UserID)
 
         tkinter.messagebox.showinfo("Saved", "Saved")
+        self.EditButton.config(state='active')
+        self.SaveButton.config(state='disabled')
+
 
     def AOORVOORinputrep(self):
         self.LRLBox.set(self.searchresult[0][1])
@@ -1311,6 +1372,8 @@ class ParametersWindow:
         return self.LRLtype
     def Edit(self):
         tkinter.messagebox.showinfo("Edit Mode on", "Edit Mode on")
+        self.EditButton.config(state='disabled')
+        self.SaveButton.config(state='active')
         self.LRLBox.config(state='readonly')
         self.URLBox.config(state='readonly')
         self.PulseAmplitudeBox.config(state='readonly')
@@ -1353,6 +1416,7 @@ class ParametersWindow:
             self.VRPBox.config(state='readonly')
 
         #display the saved parameters in the database
+
     def Display(self):
         if self.currentmode == "AAI":
             self.database = AAIParameterDatabase()
@@ -1386,6 +1450,7 @@ class ParametersWindow:
             self.database = VVIRParameterDatabase()
             self.data = self.database.Display()
             self.displayWindow = VVIRparametersDatabaseView(self.data)
+
     #default setting if no previous saved paramters
     def AAIdefaultSetting(self):
         self.LRLBox.set(60)
@@ -1411,15 +1476,16 @@ class ParametersWindow:
         tkinter.Label(self.parameterwindow, relief=tkinter.GROOVE, fg=fg_color, bg=bg_color,
                       text="URL: ",
                       font=("times new roman", 10, "bold"), width=50).grid(pady=20, column=1, row=2)
-        tkinter.Button(self.parameterwindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Edit",
-                       font=("times new roman", 15, "bold"), command=self.Edit).grid(pady=15, column=1, row=15)
-        tkinter.Button(self.parameterwindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Save",
-                       font=("times new roman", 15, "bold"), command=self.Save).grid(pady=15, column=2, row=15)
+        self.EditButton = tkinter.Button(self.parameterwindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Edit",
+                       font=("times new roman", 15, "bold"), command=self.Edit)
+        self.EditButton.grid(pady=15, column=1, row=15)
+        self.SaveButton = tkinter.Button(self.parameterwindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color, text="Save",
+                       font=("times new roman", 15, "bold"), command=self.Save)
+        self.SaveButton.grid(pady=15, column=2, row=15)
 
         # For demonstration ONLY
         tkinter.Button(self.parameterwindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color,
-                       text="Display (Demo Only)",
-                       font=("times new roman", 15, "bold"), command=self.Display).grid(pady=15, column=3, row=15)
+                       text="Display (Demo Only)", font=("times new roman", 15, "bold"), command=self.Display).grid(pady=15, column=3, row=15)
         tkinter.Button(self.parameterwindow, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color,
                        text="Back",
                        font=("times new roman", 15, "bold"), command=self.Back).grid(pady=15, column=4, row=15)
@@ -1761,6 +1827,7 @@ class ParametersWindow:
         self.ResponseFactorBox.grid(pady=5, column=4, row=3)
         self.RecoveryTimeBox.grid(pady=5, column=4, row=4)
 
+
 #opens and initializes the mode window
 class ModeWindow:
     def __init__(self, userID):
@@ -1935,6 +2002,7 @@ class ModeWindow:
         self.AAIRbutton.config(state="active")
         self.VVIRbutton.config(state="disabled")
 
+
 class GraphWindow:
     def __init__(self, userID):
         self.UserID = userID
@@ -1954,6 +2022,7 @@ class GraphWindow:
     def Back(self):
         self.loggedin = LoggedInWindow(self.UserID)
         self.window.destroy()
+
 
 #opens and initializes the home page
 class HomePage:
