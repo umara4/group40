@@ -2,8 +2,8 @@
 
 #Instructions 
 
-DCM 
-If on Mac, download PyCharm 
+#DCM 
+#If on Mac, download PyCharm 
 Also add the following 
 - tkinter
 - matplotlib
