@@ -4,7 +4,8 @@
 
 DCM 
 
-If on Mac, download PyCharm 
+If on Mac, download PyCharm
+  Install required libraries but do not install serial, only pyserial 
 
 Also add the following libraries 
 - tkinter
