@@ -98,7 +98,8 @@ class animateGraph:
 class pacemakerSerial:
     def __init__(self, UserID):
         # Mac ports, for windows you have to find the ports yourself
-        self.frdm_port = "/dev/cu.usbmodem0000001234561"
+        #self.frdm_port = "/dev/cu.usbmodem0000001234561"
+        self.frdm_port = "COM4"
 
         # B = uint8
         # f = single
