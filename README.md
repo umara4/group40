@@ -6,7 +6,7 @@ DCM
 
 If on Mac, download PyCharm 
 
-Also add the following 
+Also add the following libraries 
 - tkinter
 - matplotlib
 - pyserial
