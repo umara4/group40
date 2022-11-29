@@ -41,7 +41,7 @@ class animateGraph:
     def addToFile(self):
 
         # saved as: time, Atr, Vnt
-        f = open('sampleText.txt', 'r')
+        f = open('sampleText.txt', 'w+')
         self.time = f.readline().split(',')[0]  # pulls most recent time to increment
         self.inc += float(1)
         self.time += str(self.inc)
