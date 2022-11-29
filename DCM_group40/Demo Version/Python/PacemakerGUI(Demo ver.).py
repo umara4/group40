@@ -16,283 +16,305 @@ warning = True
 #connection is a boolean to show that the connection with the pacemaker
 connection = True
 
-class pacemakerSerial:
+# class pacemakerSerial:
+#
+#     def __init__(self, UserID):
+#         # Mac port, for windows you have to find the ports yourself lmao
+#         self.frdm_port = "/dev/cu.usbmodem0000001234561"
+#
+#         # Windows port, check COM port in device manager
+#         # win_port = "COM4"
+#         #self.login = LoginDatabase()
+#         self.AOO = AOOParameterDatabase()
+#         self.VOO = VOOParameterDatabase()
+#         self.AAI = AAIParameterDatabase()
+#         self.VVI = VVIParameterDatabase()
+#         self.AOOR = AOORParameterDatabase()
+#         self.VOOR = VOORParameterDatabase()
+#         self.AAIR = AAIRParameterDatabase()
+#         self.VVIR = VVIRParameterDatabase()
+#         self.userID = UserID
+#         #self.cmode = self.login.ReturnMode(self.userID)[0][4]
+#         self.modeDict = {
+#             'AOO': 1,
+#             'AOOR': 2,
+#             'VOO': 3,
+#             'VOOR': 4,
+#             'AAI': 5,
+#             'AAIR': 6,
+#             'VVI': 7,
+#             'VVIR': 8
+#         }
+#         self.ActivityThresholdDict = {
+#             "V-Low": 1,
+#             'Low': 2,
+#             'Med-Low': 3,
+#             'Med': 4,
+#             'Med-High': 5,
+#             'High': 6,
+#             'V-High': 7
+#         }
+#
+#         # B = uint8
+#         # f = single
+#         # H = uint16
+#         # d = double ( 8 bytes)
+#
+#         # parameter values to send to pacemaker
+#         self.Start = b'\x16'
+#         self.SYNC = b'\x22'
+#         self.Fn_set = b'\x55'
+#         self.Pacing_mode = struct.pack("B", 1)
+#         self.Pacing_mode = struct.pack("B", 1)
+#         self.LRL = struct.pack("B", 1) #LRL
+#         self.URL = struct.pack("B", 1) #URL
+#         self.MSR = struct.pack("B", 1) #max sensor rate
+#         self.A_PA = struct.pack("f", 1.0) #pulse amplitude
+#         self.V_PA = struct.pack("f", 1.0) #pulse amplitude
+#         self.A_PW = struct.pack("B", 1) #pulse width
+#         self.V_PW = struct.pack("B", 1) #pulse width
+#         self.A_Sense = struct.pack("f", 1) #sensitivity
+#         self.V_Sense = struct.pack("f", 1) #sensitivity
+#         self.A_R = struct.pack("H", 1) #ARP
+#         self.V_R = struct.pack("H", 1) #VRP
+#         self.PVARP = struct.pack("H", 1) #PVARP
+#         self.Act_thres = struct.pack("B", 1) #activity threshold
+#         self.React_time = struct.pack("B", 1) #reaction time
+#         self.Response_factor = struct.pack("B", 1) #response factor
+#         self.Recovery_time = struct.pack("H", 1) #recovery time
+#
+#         # values to read for ECG
+#         self.Atr = 0.0
+#         self.Vnt = 0.0
+#
+#     # send current parameter values to pacemaker
+#     def send_param(self):
+#         # create signal to send
+#         Signal_set = self.Start + self.Fn_set + self.Pacing_mode + self.LRL + self.URL + self.MSR + self.A_PA + self.V_PA + self.A_PW + self.V_PW + self.A_Sense + self.V_Sense + self.A_R + self.V_R + self.PVARP + self.Act_thres + self.React_time + self.Response_factor + self.Recovery_time
+#
+#         with serial.Serial(self.frdm_port, 115200) as pacemaker:
+#             pacemaker.write(Signal_set)
+#
+#     # recieve Atr and Vnt values from pacemaker for ECG
+#     def get_echo(self):
+#         # create signal to send
+#         Signal_echo = self.Start + self.SYNC + self.Pacing_mode + self.LRL + self.URL + self.MSR + self.A_PA + self.V_PA + self.A_PW + self.V_PW + self.A_Sense + self.V_Sense + self.A_R + self.V_R + self.PVARP + self.Act_thres + self.React_time + self.Response_factor + self.Recovery_time
+#
+#         with serial.Serial(self.frdm_port, 115200) as pacemaker:
+#             pacemaker.write(Signal_echo)
+#             data = pacemaker.read(49)
+#             self.Atr = struct.unpack("d", data[33:41])[0]
+#             self.Vnt = struct.unpack("d", data[41:49])[0]
+#
+#             print(self.Atr)
+#             print(self.Vnt)
+#
+#     def update(self):
+#         self.login = LoginDatabase()
+#         self.currentmode = self.login.ReturnMode(self.userID)[0][4]
+#         if self.currentmode == "AOO":
+#             self.AOO_receive = self.AOO.Search(self.userID)
+#             self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+#             self.LRL = struct.pack("B", int(self.AOO_receive[0][1]))
+#             self.URL = struct.pack("B", int(self.AOO_receive[0][2]))
+#             self.MSR = struct.pack("B", 1) #max sensor rate
+#             if self.AOO_receive[0][3] != 'Off':
+#                 self.A_PA = struct.pack("f", float(self.AOO_receive[0][3]))  # pulse amplitude
+#             else:
+#                 self.A_PA = struct.pack("f", 0)
+#             self.V_PA = struct.pack("f", 1.0)  # pulse amplitude
+#             self.A_PW = struct.pack("B", int(self.AOO_receive[0][4]))  # pulse width
+#             self.V_PW = struct.pack("B", 1)  # pulse width
+#             self.A_Sense = struct.pack("f", 1.0)  # sensitivity
+#             self.V_Sense = struct.pack("f", 1.0)  # sensitivity
+#             self.A_R = struct.pack("H", 1)  # ARP
+#             self.V_R = struct.pack("H", 1)  # VRP
+#             self.PVARP = struct.pack("H", 1)  # PVARP
+#             self.Act_thres = struct.pack("B", 1)  # activity threshold
+#             self.React_time = struct.pack("B", 1)  # reaction time
+#             self.Response_factor = struct.pack("B", 1)  # response factor
+#             self.Recovery_time = struct.pack("B", 1)  # recovery time
+#         elif self.currentmode == "VOO":
+#             self.VOO_receive = self.VOO.Search(self.userID)
+#             self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+#             self.LRL = struct.pack("B", int(self.VOO_receive[0][1]))
+#             self.URL = struct.pack("B", int(self.VOO_receive[0][2]))
+#             self.MSR = struct.pack("B", 1) #max sensor rate
+#             self.A_PA = struct.pack("f", 1.0)  # pulse amplitude
+#             if self.VOO_receive[0][3] != 'Off':
+#                 self.V_PA = struct.pack("f", float(self.VOO_receive[0][3]))  # pulse amplitude
+#             else:
+#                 self.V_PA = struct.pack("f", 0)
+#             self.A_PW = struct.pack("B", 1)  # pulse width
+#             self.V_PW = struct.pack("B", int(self.VOO_receive[0][4]))  # pulse width
+#             self.A_Sense = struct.pack("f", 1.0)  # sensitivity
+#             self.V_Sense = struct.pack("f", 1.0)  # sensitivity
+#             self.A_R = struct.pack("H", 1)  # ARP
+#             self.V_R = struct.pack("H", 1)  # VRP
+#             self.PVARP = struct.pack("H", 1)  # PVARP
+#             self.Act_thres = struct.pack("B", 1)  # activity threshold
+#             self.React_time = struct.pack("B", 1)  # reaction time
+#             self.Response_factor = struct.pack("B", 1)  # response factor
+#             self.Recovery_time = struct.pack("B", 1)  # recovery time
+#         elif self.currentmode == "AAI":
+#             self.AAI_receive = self.AAI.Search(self.userID)
+#             self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+#             self.LRL = struct.pack("B", int(self.AAI_receive[0][1]))
+#             self.URL = struct.pack("B", int(self.AAI_receive[0][2]))
+#             self.MSR = struct.pack("B", 1) #max sensor rate
+#             if self.AAI_receive[0][3] != 'Off':
+#                 self.A_PA = struct.pack("f", float(self.AAI_receive[0][3]))  # pulse amplitude
+#             else:
+#                 self.A_PA = struct.pack("f", 0)  # pulse amplitude
+#             self.V_PA = struct.pack("f", 1.0)  # pulse amplitude
+#             self.A_PW = struct.pack("B", int(self.AAI_receive[0][4]))  # pulse width
+#             self.V_PW = struct.pack("B", 1)  # pulse width
+#             self.A_Sense = struct.pack("f", float(self.AAI_receive[0][5]))  # sensitivity
+#             self.V_Sense = struct.pack("f", 1.0)  # sensitivity
+#             self.A_R = struct.pack("H", int(self.AAI_receive[0][6]))  # ARP
+#             self.V_R = struct.pack("H", 1)  # VRP
+#             self.PVARP = struct.pack("H", int(self.AAI_receive[0][7]))  # PVARP
+#             self.Act_thres = struct.pack("B", 1)  # activity threshold
+#             self.React_time = struct.pack("B", 1)  # reaction time
+#             self.Response_factor = struct.pack("B", 1)  # response factor
+#             self.Recovery_time = struct.pack("B", 1)  # recovery time
+#         elif self.currentmode == "VVI":
+#             self.VVI_receive = self.VVI.Search(self.userID)
+#             self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+#             self.LRL = struct.pack("B", int(self.VVI_receive[0][1]))
+#             self.URL = struct.pack("B", int(self.VVI_receive[0][2]))
+#             self.MSR = struct.pack("B", 1) #max sensor rate
+#             self.A_PA = struct.pack("f", 1.0)  # pulse amplitude
+#             if self.VVI_receive[0][2] != 'Off':
+#                 self.V_PA = struct.pack("f", float(self.VVI_receive[0][3]))  # pulse amplitude
+#             else:
+#                 self.V_PA = struct.pack("f", 0)
+#             self.A_PW = struct.pack("B", 1)  # pulse width
+#             self.V_PW = struct.pack("B", int(self.VVI_receive[0][4]))  # pulse width
+#             self.A_Sense = struct.pack("f", 1.0)  # sensitivity
+#             self.V_Sense = struct.pack("f", float(self.VVI_receive[0][5]))  # sensitivity
+#             self.A_R = struct.pack("H", 1)  # ARP
+#             self.V_R = struct.pack("H", int(self.VVI_receive[0][6]))  # VRP
+#             self.PVARP = struct.pack("H", 1)  # PVARP
+#             self.Act_thres = struct.pack("B", 1)  # activity threshold
+#             self.React_time = struct.pack("B", 1)  # reaction time
+#             self.Response_factor = struct.pack("B", 1)  # response factor
+#             self.Recovery_time = struct.pack("B", 1)  # recovery time
+#         elif self.currentmode == "AOOR":
+#             self.AOOR_receive = self.AOOR.Search(self.userID)
+#             self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+#             self.LRL = struct.pack("B", int(self.AOOR_receive[0][1]))
+#             self.URL = struct.pack("B", int(self.AOOR_receive[0][2]))
+#             self.MSR = struct.pack("B", int(self.AOOR_receive[0][5])) #max sensor rate
+#             if self.AOOR_receive[0][3] != 'Off':
+#                 self.A_PA = struct.pack("f", float(self.AOOR_receive[0][3]))  # pulse amplitude
+#             else:
+#                 self.A_PA = struct.pack("f", 0)
+#             self.V_PA = struct.pack("f", 1.0)  # pulse amplitude
+#             self.A_PW = struct.pack("B", int(self.AOOR_receive[0][4]))  # pulse width
+#             self.V_PW = struct.pack("B", 1)  # pulse width
+#             self.A_Sense = struct.pack("f", 1.0)  # sensitivity
+#             self.V_Sense = struct.pack("f", 1.0)  # sensitivity
+#             self.A_R = struct.pack("H", 1)  # ARP
+#             self.V_R = struct.pack("H", 1)  # VRP
+#             self.PVARP = struct.pack("H", 1)  # PVARP
+#             self.Act_thres = struct.pack("B", self.ActivityThresholdDict[self.AOOR_receive[0][6]])  # activity threshold
+#             self.React_time = struct.pack("B", int(self.AOOR_receive[0][7]))  # reaction time
+#             self.Response_factor = struct.pack("B", int(self.AOOR_receive[0][8]))  # response factor
+#             self.Recovery_time = struct.pack("B", int(self.AOOR_receive[0][9]))  # recovery time
+#         elif self.currentmode == "VOOR":
+#             self.VOOR_receive = self.VOOR.Search(self.userID)
+#             self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+#             self.LRL = struct.pack("B", int(self.VOOR_receive[0][1]))
+#             self.URL = struct.pack("B", int(self.VOOR_receive[0][2]))
+#             self.MSR = struct.pack("B", int(self.VOOR_receive[0][5])) #max sensor rate
+#             self.A_PA = struct.pack("f", 1.0)  # pulse amplitude
+#             if self.VOOR_receive[0][3] != 'Off':
+#                 self.V_PA = struct.pack("f", float(self.VOOR_receive[0][3]))  # pulse amplitude
+#             else:
+#                 self.V_PA = struct.pack("f", 0)
+#             self.A_PW = struct.pack("B", 1)  # pulse width
+#             self.V_PW = struct.pack("B", int(self.VOOR_receive[0][4]))  # pulse width
+#             self.A_Sense = struct.pack("f", 1.0)  # sensitivity
+#             self.V_Sense = struct.pack("f", 1.0)  # sensitivity
+#             self.A_R = struct.pack("H", 1)  # ARP
+#             self.V_R = struct.pack("H", 1)  # VRP
+#             self.PVARP = struct.pack("H", 1)  # PVARP
+#             self.Act_thres = struct.pack("B", self.ActivityThresholdDict[self.VOOR_receive[0][6]])  # activity threshold
+#             self.React_time = struct.pack("B", int(self.VOOR_receive[0][7]))  # reaction time
+#             self.Response_factor = struct.pack("B", int(self.VOOR_receive[0][8]))  # response factor
+#             self.Recovery_time = struct.pack("B", int(self.VOOR_receive[0][9]))  # recovery time
+#         elif self.currentmode == "AAIR":
+#             self.AAIR_receive = self.AAIR.Search(self.userID)
+#             self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+#             self.LRL = struct.pack("B", int(self.AAIR_receive[0][1]))
+#             self.URL = struct.pack("B", int(self.AAIR_receive[0][2]))
+#             self.MSR = struct.pack("B", int(self.AAIR_receive[0][5])) #max sensor rate
+#             if self.AAIR_receive[0][2] != 'Off':
+#                 self.A_PA = struct.pack("f", float(self.AAIR_receive[0][3]))  # pulse amplitude
+#             else:
+#                 self.A_PA = struct.pack("f", 0)
+#             self.V_PA = struct.pack("f", 1.0)  # pulse amplitude
+#             self.A_PW = struct.pack("B", int(self.AAIR_receive[0][4]))  # pulse width
+#             self.V_PW = struct.pack("B", 1)  # pulse width
+#             self.A_Sense = struct.pack("f", float(self.AAIR_receive[0][6]))  # sensitivity
+#             self.V_Sense = struct.pack("f", 1.0)  # sensitivity
+#             self.A_R = struct.pack("H", int(self.AAIR_receive[0][7]))  # ARP
+#             self.V_R = struct.pack("H", 1)  # VRP
+#             self.PVARP = struct.pack("H", int(self.AAIR_receive[0][8]))  # PVARP
+#             self.Act_thres = struct.pack("B", self.ActivityThresholdDict[self.AAIR_receive[0][9]])  # activity threshold
+#             self.React_time = struct.pack("B", int(self.AAIR_receive[0][10]))  # reaction time
+#             self.Response_factor = struct.pack("B", int(self.AAIR_receive[0][11]))  # response factor
+#             self.Recovery_time = struct.pack("B", int(self.AAIR_receive[0][12]))  # recovery time
+#         elif self.currentmode == "VVIR":
+#             self.VVIR_receive = self.VVIR.Search(self.userID)
+#             self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+#             self.LRL = struct.pack("B", int(self.VVIR_receive[0][1]))
+#             self.URL = struct.pack("B", int(self.VVIR_receive[0][2]))
+#             self.MSR = struct.pack("B", int(self.VVIR_receive[0][5])) #max sensor rate
+#             self.A_PA = struct.pack("f", 1.0)  # pulse amplitude
+#             if self.VVIR_receive[0][2] != 'Off':
+#                 self.V_PA = struct.pack("f", float(self.VVIR_receive[0][3]))  # pulse amplitude
+#             else:
+#                 self.V_PA = struct.pack("f", 0)  # pulse amplitude
+#             self.A_PW = struct.pack("B", 1)  # pulse width
+#             self.V_PW = struct.pack("B", int(self.VVIR_receive[0][4]))  # pulse width
+#             self.A_Sense = struct.pack("f", 1.0)  # sensitivity
+#             self.V_Sense = struct.pack("f", float(self.VVIR_receive[0][6]))  # sensitivity
+#             self.A_R = struct.pack("H", 1)  # ARP
+#             self.V_R = struct.pack("H", int(self.VVIR_receive[0][7]))  # VRP
+#             self.PVARP = struct.pack("H", 0)  # PVARP
+#             self.Act_thres = struct.pack("B", self.ActivityThresholdDict[self.VVIR_receive[0][8]])  # activity threshold
+#             self.React_time = struct.pack("B", int(self.VVIR_receive[0][9]))  # reaction time
+#             self.Response_factor = struct.pack("B", int(self.VVIR_receive[0][10]))  # response factor
+#             self.Recovery_time = struct.pack("B", int(self.VVIR_receive[0][11]))  # recovery time
+#
+#     def getAtr(self):
+#         return self.Atr
+#
+#     def getVnt(self):
+#         return self.Vnt
 
-    def __init__(self, UserID):
-        # Mac port, for windows you have to find the ports yourself lmao
-        self.frdm_port = "/dev/cu.usbmodem0000001234561"
 
-        # Windows port, check COM port in device manager
-        # win_port = "COM4"
-        self.login = LoginDatabase()
-        self.AOO = AOOParameterDatabase()
-        self.VOO = VOOParameterDatabase()
-        self.AAI = AAIParameterDatabase()
-        self.VVI = VVIParameterDatabase()
-        self.AOOR = AOORParameterDatabase()
-        self.VOOR = VOORParameterDatabase()
-        self.AAIR = AAIRParameterDatabase()
-        self.VVIR = VVIRParameterDatabase()
-        self.userID = UserID
-        self.currentmode = self.login.ReturnMode(self.userID)[0][4]
-        self.modeDict = {
-            'AOO': 1,
-            'AOOR': 2,
-            'VOO': 3,
-            'VOOR': 4,
-            'AAI': 5,
-            'AAIR': 6,
-            'VVI': 7,
-            'VVIR': 8
-        }
-        self.ActivityThresholdDict = {
-            "V-Low": 1,
-            'Low': 2,
-            'Med-Low': 3,
-            'Med': 4,
-            'Med-High': 5,
-            'High': 6,
-            'V-High': 7
-        }
 
-        # B = uint8
-        # f = single
-        # H = uint16
-        # d = double ( 8 bytes)
-
-        # parameter values to send to pacemaker
-        self.Start = b'\x16'
-        self.SYNC = b'\x22'
-        self.Fn_set = b'\x55'
-        self.Pacing_mode = struct.pack("B", 1)
-        self.Pacing_mode = struct.pack("B", 1)
-        self.LRL = struct.pack("B", 1) #LRL
-        self.URL = struct.pack("B", 1) #URL
-        self.MSR = struct.pack("B", 1) #max sensor rate
-        self.A_PA = struct.pack("f", 1.0) #pulse amplitude
-        self.V_PA = struct.pack("f", 1.0) #pulse amplitude
-        self.A_PW = struct.pack("B", 1) #pulse width
-        self.V_PW = struct.pack("B", 1) #pulse width
-        self.A_Sense = struct.pack("f", 1) #sensitivity
-        self.V_Sense = struct.pack("f", 1) #sensitivity
-        self.A_R = struct.pack("H", 1) #ARP
-        self.V_R = struct.pack("H", 1) #VRP
-        self.PVARP = struct.pack("H", 1) #PVARP
-        self.Act_thres = struct.pack("B", 1) #activity threshold
-        self.React_time = struct.pack("B", 1) #reaction time
-        self.Response_factor = struct.pack("B", 1) #response factor
-        self.Recovery_time = struct.pack("H", 1) #recovery time
-
-        # values to read for ECG
-        self.Atr = 0.0
-        self.Vnt = 0.0
-
-    # send current parameter values to pacemaker
-    def send_param(self):
-        # create signal to send
-        Signal_set = self.Start + self.Fn_set + self.Pacing_mode + self.LRL + self.URL + self.MSR + self.A_PA + self.V_PA + self.A_PW + self.V_PW + self.A_Sense + self.V_Sense + self.A_R + self.V_R + self.PVARP + self.Act_thres + self.React_time + self.Response_factor + self.Recovery_time
-
-        with serial.Serial(self.frdm_port, 115200) as pacemaker:
-            pacemaker.write(Signal_set)
-
-    # recieve Atr and Vnt values from pacemaker for ECG
-    def get_echo(self):
-        # create signal to send
-        Signal_echo = self.Start + self.SYNC + self.Pacing_mode + self.LRL + self.URL + self.MSR + self.A_PA + self.V_PA + self.A_PW + self.V_PW + self.A_Sense + self.V_Sense + self.A_R + self.V_R + self.PVARP + self.Act_thres + self.React_time + self.Response_factor + self.Recovery_time
-
-        with serial.Serial(self.frdm_port, 115200) as pacemaker:
-            pacemaker.write(Signal_echo)
-            data = pacemaker.read(49)
-            self.Atr = struct.unpack("d", data[33:41])[0]
-            self.Vnt = struct.unpack("d", data[41:49])[0]
-
-            print(self.Atr)
-            print(self.Vnt)
-
-    def update(self):
-        if self.currentmode == "AOO":
-            self.AOO_receive = self.AOO.Search(self.userID)
-            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
-            self.LRL = struct.pack("B", int(self.AOO_receive[0][1]))
-            self.URL = struct.pack("B", int(self.AOO_receive[0][2]))
-            self.MSR = struct.pack("B", 1) #max sensor rate
-            self.A_PA = struct.pack("f", float(self.AOO_receive[0][3]))  # pulse amplitude
-            self.V_PA = struct.pack("f", 1.0)  # pulse amplitude
-            self.A_PW = struct.pack("B", int(self.AOO_receive[0][4]))  # pulse width
-            self.V_PW = struct.pack("B", 1)  # pulse width
-            self.A_Sense = struct.pack("f", 1.0)  # sensitivity
-            self.V_Sense = struct.pack("f", 1.0)  # sensitivity
-            self.A_R = struct.pack("H", 1)  # ARP
-            self.V_R = struct.pack("H", 1)  # VRP
-            self.PVARP = struct.pack("H", 1)  # PVARP
-            self.Act_thres = struct.pack("B", 1)  # activity threshold
-            self.React_time = struct.pack("B", 1)  # reaction time
-            self.Response_factor = struct.pack("B", 1)  # response factor
-            self.Recovery_time = struct.pack("B", 1)  # recovery time
-        elif self.currentmode == "VOO":
-            self.VOO_receive = self.VOO.Search(self.userID)
-            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
-            self.LRL = struct.pack("B", int(self.VOO_receive[0][1]))
-            self.URL = struct.pack("B", int(self.VOO_receive[0][2]))
-            self.MSR = struct.pack("B", 1) #max sensor rate
-            self.A_PA = struct.pack("f", 1.0)  # pulse amplitude
-            self.V_PA = struct.pack("f", float(self.AOO_receive[0][3]))  # pulse amplitude
-            self.A_PW = struct.pack("B", 1)  # pulse width
-            self.V_PW = struct.pack("B", int(self.AOO_receive[0][4]))  # pulse width
-            self.A_Sense = struct.pack("f", 1.0)  # sensitivity
-            self.V_Sense = struct.pack("f", 1.0)  # sensitivity
-            self.A_R = struct.pack("H", 1)  # ARP
-            self.V_R = struct.pack("H", 1)  # VRP
-            self.PVARP = struct.pack("H", 1)  # PVARP
-            self.Act_thres = struct.pack("B", 1)  # activity threshold
-            self.React_time = struct.pack("B", 1)  # reaction time
-            self.Response_factor = struct.pack("B", 1)  # response factor
-            self.Recovery_time = struct.pack("B", 1)  # recovery time
-        elif self.currentmode == "AAI":
-            self.AAI_receive = self.AAI.Search(self.userID)
-            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
-            self.LRL = struct.pack("B", int(self.AAI_receive[0][1]))
-            self.URL = struct.pack("B", int(self.AAI_receive[0][2]))
-            self.MSR = struct.pack("B", 1) #max sensor rate
-            if self.AOO_receive[0][3] != 'Off':
-                self.A_PA = struct.pack("f", float(self.AOO_receive[0][3]))  # pulse amplitude
-            else:
-                self.A_PA = struct.pack("f", 0)  # pulse amplitude
-            self.V_PA = struct.pack("f", 1.0)  # pulse amplitude
-            self.A_PW = struct.pack("B", int(self.AOO_receive[0][4]))  # pulse width
-            self.V_PW = struct.pack("B", 1)  # pulse width
-            self.A_Sense = struct.pack("f", float(self.AAI_receive[0][5]))  # sensitivity
-            self.V_Sense = struct.pack("f", 1.0)  # sensitivity
-            self.A_R = struct.pack("H", int(self.AAI_receive[0][6]))  # ARP
-            self.V_R = struct.pack("H", 1)  # VRP
-            self.PVARP = struct.pack("H", int(self.AAI_receive[0][7]))  # PVARP
-            self.Act_thres = struct.pack("B", 1)  # activity threshold
-            self.React_time = struct.pack("B", 1)  # reaction time
-            self.Response_factor = struct.pack("B", 1)  # response factor
-            self.Recovery_time = struct.pack("B", 1)  # recovery time
-        elif self.currentmode == "VVI":
-            self.VVI_receive = self.VVI.Search(self.userID)
-            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
-            self.LRL = struct.pack("B", int(self.VVI_receive[0][1]))
-            self.URL = struct.pack("B", int(self.VVI_receive[0][2]))
-            self.MSR = struct.pack("B", 1) #max sensor rate
-            self.A_PA = struct.pack("f", 1.0)  # pulse amplitude
-            if self.VVI_receive[0][2] != 'Off':
-                self.V_PA = struct.pack("f", float(self.VVI_receive[0][3]))  # pulse amplitude
-            else:
-                self.V_PA = struct.pack("f", 0)
-            self.A_PW = struct.pack("B", 1)  # pulse width
-            self.V_PW = struct.pack("B", int(self.VVI_receive[0][4]))  # pulse width
-            self.A_Sense = struct.pack("f", 1.0)  # sensitivity
-            self.V_Sense = struct.pack("f", float(self.VVI_receive[0][5]))  # sensitivity
-            self.A_R = struct.pack("H", 1)  # ARP
-            self.V_R = struct.pack("H", int(self.VVI_receive[0][6]))  # VRP
-            self.PVARP = struct.pack("H", 1)  # PVARP
-            self.Act_thres = struct.pack("B", 1)  # activity threshold
-            self.React_time = struct.pack("B", 1)  # reaction time
-            self.Response_factor = struct.pack("B", 1)  # response factor
-            self.Recovery_time = struct.pack("B", 1)  # recovery time
-        elif self.currentmode == "AOOR":
-            self.AOOR_receive = self.AOOR.Search(self.userID)
-            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
-            self.LRL = struct.pack("B", int(self.AOOR_receive[0][1]))
-            self.URL = struct.pack("B", int(self.AOOR_receive[0][2]))
-            self.MSR = struct.pack("B", int(self.AOOR_receive[0][5])) #max sensor rate
-            self.A_PA = struct.pack("f", float(self.AOOR_receive[0][3]))  # pulse amplitude
-            self.V_PA = struct.pack("f", 1.0)  # pulse amplitude
-            self.A_PW = struct.pack("B", int(self.AOOR_receive[0][4]))  # pulse width
-            self.V_PW = struct.pack("B", 1)  # pulse width
-            self.A_Sense = struct.pack("f", 1.0)  # sensitivity
-            self.V_Sense = struct.pack("f", 1.0)  # sensitivity
-            self.A_R = struct.pack("H", 1)  # ARP
-            self.V_R = struct.pack("H", 1)  # VRP
-            self.PVARP = struct.pack("H", 1)  # PVARP
-            self.Act_thres = struct.pack("B", self.ActivityThresholdDict[self.AOOR_receive[0][6]])  # activity threshold
-            self.React_time = struct.pack("B", int(self.AOOR_receive[0][7]))  # reaction time
-            self.Response_factor = struct.pack("B", int(self.AOOR_receive[0][8]))  # response factor
-            self.Recovery_time = struct.pack("B", int(self.AOOR_receive[0][9]))  # recovery time
-        elif self.currentmode == "VOOR":
-            self.VOOR_receive = self.VOOR.Search(self.userID)
-            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
-            self.LRL = struct.pack("B", int(self.VOOR_receive[0][1]))
-            self.URL = struct.pack("B", int(self.VOOR_receive[0][2]))
-            self.MSR = struct.pack("B", int(self.VOOR_receive[0][5])) #max sensor rate
-            self.A_PA = struct.pack("f", 1.0)  # pulse amplitude
-            self.V_PA = struct.pack("f", float(self.VOOR_receive[0][3]))  # pulse amplitude
-            self.A_PW = struct.pack("B", 1)  # pulse width
-            self.V_PW = struct.pack("B", int(self.VOOR_receive[0][4]))  # pulse width
-            self.A_Sense = struct.pack("f", 1.0)  # sensitivity
-            self.V_Sense = struct.pack("f", 1.0)  # sensitivity
-            self.A_R = struct.pack("H", 1)  # ARP
-            self.V_R = struct.pack("H", 1)  # VRP
-            self.PVARP = struct.pack("H", 1)  # PVARP
-            self.Act_thres = struct.pack("B", self.ActivityThresholdDict[self.VOOR_receive[0][6]])  # activity threshold
-            self.React_time = struct.pack("B", int(self.VOOR_receive[0][7]))  # reaction time
-            self.Response_factor = struct.pack("B", int(self.VOOR_receive[0][8]))  # response factor
-            self.Recovery_time = struct.pack("B", int(self.VOOR_receive[0][9]))  # recovery time
-        elif self.currentmode == "AAIR":
-            self.AAIR_receive = self.AAIR.Search(self.userID)
-            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
-            self.LRL = struct.pack("B", int(self.AAIR_receive[0][1]))
-            self.URL = struct.pack("B", int(self.AAIR_receive[0][2]))
-            self.MSR = struct.pack("B", int(self.AAIR_receive[0][5])) #max sensor rate
-            if self.AAIR_receive[0][2] != 'Off':
-                self.A_PA = struct.pack("f", float(self.AAIR_receive[0][3]))  # pulse amplitude
-            else:
-                self.A_PA = struct.pack("f", 0)
-            self.V_PA = struct.pack("f", 1.0)  # pulse amplitude
-            self.A_PW = struct.pack("B", int(self.AAIR_receive[0][4]))  # pulse width
-            self.V_PW = struct.pack("B", 1)  # pulse width
-            self.A_Sense = struct.pack("f", float(self.AAIR_receive[0][6]))  # sensitivity
-            self.V_Sense = struct.pack("f", 1.0)  # sensitivity
-            self.A_R = struct.pack("H", int(self.AAIR_receive[0][7]))  # ARP
-            self.V_R = struct.pack("H", 1)  # VRP
-            self.PVARP = struct.pack("H", int(self.AAIR_receive[0][8]))  # PVARP
-            self.Act_thres = struct.pack("B", self.ActivityThresholdDict[self.AAIR_receive[0][9]])  # activity threshold
-            self.React_time = struct.pack("B", int(self.AAIR_receive[0][10]))  # reaction time
-            self.Response_factor = struct.pack("B", int(self.AAIR_receive[0][11]))  # response factor
-            self.Recovery_time = struct.pack("B", int(self.AAIR_receive[0][12]))  # recovery time
-        elif self.currentmode == "VVIR":
-            self.VVIR_receive = self.VVIR.Search(self.userID)
-            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
-            self.LRL = struct.pack("B", int(self.VVIR_receive[0][1]))
-            self.URL = struct.pack("B", int(self.VVIR_receive[0][2]))
-            self.MSR = struct.pack("B", int(self.VVIR_receive[0][5])) #max sensor rate
-            self.A_PA = struct.pack("f", 1.0)  # pulse amplitude
-            if self.VVIR_receive[0][2] != 'Off':
-                self.V_PA = struct.pack("f", float(self.VVIR_receive[0][3]))  # pulse amplitude
-            else:
-                self.V_PA = struct.pack("f", 0)  # pulse amplitude
-            self.A_PW = struct.pack("B", 1)  # pulse width
-            self.V_PW = struct.pack("B", int(self.VVIR_receive[0][4]))  # pulse width
-            self.A_Sense = struct.pack("f", 1.0)  # sensitivity
-            self.V_Sense = struct.pack("f", float(self.VVIR_receive[0][6]))  # sensitivity
-            self.A_R = struct.pack("H", 1)  # ARP
-            self.V_R = struct.pack("H", int(self.VVIR_receive[0][7]))  # VRP
-            self.PVARP = struct.pack("H", 0)  # PVARP
-            self.Act_thres = struct.pack("B", self.ActivityThresholdDict[self.VVIR_receive[0][8]])  # activity threshold
-            self.React_time = struct.pack("B", int(self.VVIR_receive[0][9]))  # reaction time
-            self.Response_factor = struct.pack("B", int(self.VVIR_receive[0][10]))  # response factor
-            self.Recovery_time = struct.pack("B", int(self.VVIR_receive[0][11]))  # recovery time
-
-    def getAtr(self):
-        return self.Atr
-
-    def getVnt(self):
-        return self.Vnt
 
 
 class animateGraph:
 
     # pass in pacemakerSerial object on  init, assumes you already have on instantiated
-    def __init__(self, pacemakerSerial):
+    def __init__(self, pacemakerSerial, userID, loggedinwindow):
         # for serial com
         self.pacemaker = pacemakerSerial
-
+        self.UserID = userID
         # for plot
         self.inc = 0
         self.time = 0
         self.fig = plt.figure()
+        self.loggedin = loggedinwindow
+        self.loggedin.withdraw()
+        #self.fig.canvas.mpl_connect('close_event', self.on_close)
+        print(plt.get_fignums())
+        #print(self.fig.number)
         self.ax1 = self.fig.add_subplot(1, 1, 1)
 
     def addToFile(self):
@@ -313,7 +335,6 @@ class animateGraph:
         f.close()
 
     def animate(self, i):
-
         self.addToFile()  # update vals
 
         pullData = open("EGRAM_vals.txt", "r").read()  # must use txt file for input, else graph wont update
@@ -323,7 +344,7 @@ class animateGraph:
         tar = []
         aar = []
         var = []
-        for eachLine in dataArray:
+        for eachLine in dataArray[-21:-1]: # pulls last 20 lines from txt file
             if len(eachLine) > 1:
                 t, a, v = eachLine.split(',')
                 tar.append(str(t))
@@ -337,234 +358,347 @@ class animateGraph:
     # run this to open the plot
     def showPlot(self):
         ani = animation.FuncAnimation(self.fig, self.animate, interval=10)  # refresh every 10ms
+        self.fig.canvas.mpl_connect('close_event', self.on_close)
         plt.show()
 
-
-# b1 = pacemakerSerial()
-# a1 = animateGraph(b1)
-# a1.showPlot()
-
-# class sendSerial:
-#     def __init__(self, currentmode, UserID):
-#         self.cmode = currentmode
-#         self.userID = UserID
-#         self.AOO = AOOParameterDatabase()
-#         self.VOO = VOOParameterDatabase()
-#         self.AAI = AAIParameterDatabase()
-#         self.VVI = VVIParameterDatabase()
-#         self.AOOR = AOORParameterDatabase()
-#         self.VOOR = VOORParameterDatabase()
-#         self.AAIR = AAIRParameterDatabase()
-#         self.VVIR = VVIRParameterDatabase()
-#         self.mode = {
-#             'AOO': 1,
-#             'VOO': 2,
-#             'AAI': 3,
-#             'VVI': 4,
-#             'AOOR': 5,
-#             'VOOR': 6,
-#             'AAIR': 7,
-#             'VVIR': 8
-#         }
-#         self.ActivityThresholdDict = {
-#             "V-Low": 1,
-#             'Low': 2,
-#             'Med-Low': 3,
-#             'Med': 4,
-#             'Med-High': 5,
-#             'High': 6,
-#             'V-High': 7
-#         }
-#         self.ser = serial.Serial('/dev/tty.usbmodem0000001234561',115200) #mac
-#         #ser = serial.Serial('COM4', 115200)  # windows
-#
-#
-#         # self.LRLtype = list(range(30, 50, 5)) + list(range(50, 90)) + list(range(90, 180, 5))
-#         # self.URLtype = list(range(50, 180, 5))
-#         # self.PulseAmplitudetype = ["Off"] + list(self.float_range(1, 5.1, '0.1')) #chg off --> 0 , 0:0.1:5
-#         # self.PulseWidthtype = list(range(1, 31, 1)) #chg 1:1:30
-#         # self.MaxSensorRate = list(range(50, 180, 5))
-#         # self.Sensitivitytype = list(self.float_range(0, 10.5, '0.5')) #chg 0:0.1:5
-#         # self.RPtype = list(range(150, 510, 10))
-#         # self.PVARPtype = list(range(150, 510, 10))
-#         # self.ActivityThreshold = ["V-Low", 'Low', 'Med-Low', 'Med', 'Med-High', 'High', 'V-High'] #chg 0:7
-#         # self.ReactionTime = list(range(10, 60, 10))
-#         # self.ResponseFactor = list(range(1, 17, 1))
-#         # self.RecoveryTime = list(range(2, 17, 1))
-#
-#         if self.cmode == "AOO":
-#             self.AOO_receive = self.AOO.Search(self.userID)
-#             self.enter = [self.mode[self.cmode]]
-#             self.enter.append(self.AOO_receive[0][0]) #LRL
-#             self.enter.append(self.AOO_receive[0][1]) #URL
-#             self.enter.append(self.AOO_receive[0][2]) #pulse Amplitude
-#             self.enter.append(self.AOO_receive[0][3]) #pulse width
-#             if self.AOO_receive[0][2] != "Off": #pulse amplitude
-#                 self.enter[3] *= 10
-#             else:
-#                 self.enter[3] = 0
-#             self.enter.insert(5, 0)  # max sensor rate
-#             self.enter.insert(6, 0)  # sensitivity
-#             self.enter.insert(7, 0)  # ARP
-#             self.enter.insert(8, 0)  # PVARP
-#             self.enter.insert(9, 0)  # Activity Threshold
-#             self.enter.insert(10, 0)  # reaction time
-#             self.enter.insert(11, 0)  # response factor
-#             self.enter.insert(12, 0)  # recovery time
-#             self.ser.write(self.enter)
-#             print("test file sent")
-#         elif self.cmode == "VOO":
-#             self.VOO_receive = self.VOO.Search(self.userID)
-#             self.enter = [self.mode[self.cmode]]
-#             self.enter.append(self.VOO_receive[0][0])  # LRL
-#             self.enter.append(self.VOO_receive[0][1])  # URL
-#             self.enter.append(self.VOO_receive[0][2])  # pulse Amplitude
-#             self.enter.append(self.VOO_receive[0][3])  # pulse width
-#             if self.VOO_receive[0][2] != "Off":
-#                 self.enter[3] *= 10
-#             else:
-#                 self.enter[3] = 0
-#             self.enter.insert(5, 0)  # max sensor rate
-#             self.enter.insert(6, 0)  # sensitivity
-#             self.enter.insert(7, 0)  # VRP
-#             self.enter.insert(8, 0)  # PVARP
-#             self.enter.insert(9, 0)  # Activity Threshold
-#             self.enter.insert(10, 0)  # reaction time
-#             self.enter.insert(11, 0)  # response factor
-#             self.enter.insert(12, 0)  # recovery time
-#             self.ser.write(self.enter)
-#             print("test file sent")
-#         elif self.cmode == "AAI":
-#             self.AAI_receive = self.AAI.Search(self.userID)
-#             self.enter = [self.mode[self.cmode]]
-#             self.enter.append(self.AAI_receive[0][0])  # LRL
-#             self.enter.append(self.AAI_receive[0][1])  # URL
-#             self.enter.append(self.AAI_receive[0][2])  # pulse Amplitude
-#             self.enter.append(self.AAI_receive[0][3])  # pulse width
-#             if self.AAI_receive[0][2] != "Off":
-#                 self.enter[3] *= 10
-#             else:
-#                 self.enter[3] = 0
-#             self.enter.insert(5, 0) #max sensor rate
-#             self.enter.append(self.AAI_receive[0][4])  # sensitivity
-#             self.enter[6] *= 10 #sensitivity
-#             self.enter.append(self.AAI_receive[0][5])  # ARP
-#             self.enter.append(self.AAI_receive[0][6]) # PVARP
-#             self.enter.insert(9, 0)  # Activity Threshold
-#             self.enter.insert(10, 0)  # reaction time
-#             self.enter.insert(11, 0)  # response factor
-#             self.enter.insert(12, 0)  # recovery time
-#             self.ser.write(self.enter)
-#             print("test file sent")
-#         elif self.cmode == "VVI":
-#             self.VVI_receive = self.VVI.Search(self.userID)
-#             self.enter = [self.mode[self.cmode]]
-#             self.enter.append(self.VVI_receive[0][0])  # LRL
-#             self.enter.append(self.VVI_receive[0][1])  # URL
-#             self.enter.append(self.VVI_receive[0][2])  # pulse Amplitude
-#             self.enter.append(self.VVI_receive[0][3])  # pulse width
-#             if self.VVI_receive[0][2] != "Off":
-#                 self.enter[3] *= 10
-#             else:
-#                 self.enter[3] = 0
-#             self.enter.insert(5, 0)  # max sensor rate
-#             self.enter.append(self.VVI_receive[0][4])  # sensitivity
-#             self.enter[6] *= 10  # sensitivity
-#             self.enter.append(self.VVI_receive[0][5])  # VRP
-#             self.enter.insert(8, 0) # PVARP
-#             self.enter.insert(9, 0)  # Activity Threshold
-#             self.enter.insert(10, 0)  # reaction time
-#             self.enter.insert(11, 0)  # response factor
-#             self.enter.insert(12, 0)  # recovery time
-#             self.ser.write(self.enter)
-#             print("test file sent")
-#         elif self.cmode == "AOOR":
-#             self.AOOR_receive = self.AOOR.Search(self.userID)
-#             self.enter = [self.mode[self.cmode]]
-#             self.enter.append(self.AOOR_receive[0][0])  # LRL
-#             self.enter.append(self.AOOR_receive[0][1])  # URL
-#             self.enter.append(self.AOOR_receive[0][2])  # pulse Amplitude
-#             self.enter.append(self.AOOR_receive[0][3])  # pulse width
-#             if self.AOOR_receive[0][2] != "Off":
-#                 self.enter[3] *= 10
-#             else:
-#                 self.enter[3] = 0
-#             self.enter.append(self.AOOR_receive[0][4])  # max sensor rate
-#             self.enter.insert(6, 0)  # sensitivity
-#             self.enter.insert(7, 0)  # ARP
-#             self.enter.insert(8, 0)  # PVARP
-#             self.enter[9] = self.ActivityThresholdDict[self.AOOR_receive[0][5]]
-#             self.enter.append(self.AOOR_receive[0][6])  # reaction time
-#             self.enter.append(self.AOOR_receive[0][7])  # response factor
-#             self.enter.append(self.AOOR_receive[0][8]) # recovery time
-#             self.ser.write(self.enter)
-#             print("test file sent")
-#         elif self.cmode == "VOOR":
-#             self.VOOR_receive = self.VOOR.Search(self.userID)
-#             self.enter = [self.mode[self.cmode]]
-#             self.enter.append(self.VOOR_receive[0][0])  # LRL
-#             self.enter.append(self.VOOR_receive[0][1])  # URL
-#             self.enter.append(self.VOOR_receive[0][2])  # pulse Amplitude
-#             self.enter.append(self.VOOR_receive[0][3])  # pulse width
-#             if self.VOOR_receive[0][2] != "Off": #pulse amplitude
-#                 self.enter[3] *= 10
-#             else:
-#                 self.enter[3] = 0
-#             self.enter.append(self.AOOR_receive[0][4])  # max sensor rate
-#             self.enter.insert(6, 0) #sensitivity
-#             self.enter[6] *= 10  # sensitivity
-#             self.enter.insert(7, 0) #VRP
-#             self.enter.insert(8, 0) #PVARP
-#             self.enter[9] = self.ActivityThresholdDict[self.VOOR_receive[0][5]] #activity threshold
-#             self.enter.append(self.VOOR_receive[0][6])  #reaction time
-#             self.enter.append(self.VOOR_receive[0][7])  #response factor
-#             self.enter.append(self.VOOR_receive[0][8])  #recovery time
-#             self.ser.write(self.enter)
-#         elif self.cmode == "AAIR":
-#             self.AAIR_receive = self.AAIR.Search(self.userID)
-#             self.enter = [self.mode[self.cmode]]
-#             self.enter.append(self.AAIR_receive[0][0])  # LRL
-#             self.enter.append(self.AAIR_receive[0][1])  # URL
-#             self.enter.append(self.AAIR_receive[0][2])  # pulse Amplitude
-#             self.enter.append(self.AAIR_receive[0][3])  # pulse width
-#             if self.AAIR_receive[0][2] != "Off":
-#                 self.enter[3] *= 10 #pulse amplitude
-#             else:
-#                 self.enter[3] = 0
-#             self.enter.append(self.AAIR_receive[0][4])  # max sensor rate
-#             self.enter.append(self.AAIR_receive[0][5])  # sensitivity
-#             self.enter[6] *= 10  # sensitivity
-#             self.enter.append(self.AAIR_receive[0][6])   # ARP
-#             self.enter.append(self.AAIR_receive[0][7])   # PVARP
-#             self.enter[9] = self.ActivityThresholdDict[self.AAIR_receive[0][8]]
-#             self.enter.append(self.AAIR_receive[0][9])  # reaction time
-#             self.enter.append(self.AAIR_receive[0][10])  # response factor
-#             self.enter.append(self.AAIR_receive[0][11])  # recovery time
-#             self.ser.write(self.enter)
-#         elif self.cmode == "VVIR":
-#             self.VVIR_receive = self.VVIR.Search(self.userID)
-#             self.enter = [self.mode[self.cmode]]
-#             self.enter.append(self.VVIR_receive[0][0])  # LRL
-#             self.enter.append(self.VVIR_receive[0][1])  # URL
-#             self.enter.append(self.VVIR_receive[0][2])  # pulse Amplitude
-#             self.enter.append(self.VVIR_receive[0][3])  # pulse width
-#             if self.VVIR_receive[0][2] != "Off":
-#                 self.enter[3] *= 10  # pulse amplitude
-#             else:
-#                 self.enter[3] = 0
-#             self.enter.append(self.VVIR_receive[0][4])  # max sensor rate
-#             self.enter.append(self.VVIR_receive[0][5])  # sensitivity
-#             self.enter[6] *= 10  # sensitivity
-#             self.enter.append(self.VVIR_receive[0][6])  # VRP
-#             self.enter.insert(8, 0)  # PVARP
-#             self.enter[9] = self.ActivityThresholdDict[self.VVIR_receive[0][7]]
-#             self.enter.append(self.AAIR_receive[0][8])  # reaction time
-#             self.enter.append(self.AAIR_receive[0][9])  # response factor
-#             self.enter.append(self.AAIR_receive[0][10])  # recovery time
-#             self.ser.write(self.enter)
+    def on_close(self, event):
+        print('Closed Figure!')
+        self.loggedin = LoggedInWindow(self.UserID)
+        f = open("EGRAM_vals.txt","w")
+        f.write('0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n0,0,0\n')
 
 
 #stores the login creditals
+
+
+class pacemakerSerial:
+    def __init__(self, UserID):
+        # Mac ports, for windows you have to find the ports yourself
+        self.frdm_port = "/dev/cu.usbmodem0000001234561"
+
+        # B = uint8
+        # f = single
+        # H = uint16
+        # d = double ( 8 bytes)
+
+        self.Start = b'\x16'
+        self.SYNC = b'\x22'
+        self.Fn_set = b'\x55'
+        self.Pacing_mode = struct.pack("B", 1)
+        self.LRL = struct.pack("B", 1)
+        self.URL = struct.pack("B", 1)
+        self.MSR = struct.pack("B", 1)
+        self.A_PA = struct.pack("f", 1.0)
+        self.V_PA = struct.pack("f", 1.0)
+        self.A_PW = struct.pack("B", 1)
+        self.V_PW = struct.pack("B", 1)
+        self.A_Sense = struct.pack("f", 1)
+        self.V_Sense = struct.pack("f", 1)
+        self.A_R = struct.pack("H", 1)
+        self.V_R = struct.pack("H", 1)
+        self.PVARP = struct.pack("H", 1)
+        self.Act_thres = struct.pack("B", 1)
+        self.React_time = struct.pack("B", 1)
+        self.Response_factor = struct.pack("B", 1)
+        self.Recovery_time = struct.pack("H", 1)
+
+        self.AOO = AOOParameterDatabase()
+        self.VOO = VOOParameterDatabase()
+        self.AAI = AAIParameterDatabase()
+        self.VVI = VVIParameterDatabase()
+        self.AOOR = AOORParameterDatabase()
+        self.VOOR = VOORParameterDatabase()
+        self.AAIR = AAIRParameterDatabase()
+        self.VVIR = VVIRParameterDatabase()
+        self.userID = UserID
+        # self.cmode = self.login.ReturnMode(self.userID)[0][4]
+        self.modeDict = {
+            'AOO': 1,
+            'AOOR': 2,
+            'VOO': 3,
+            'VOOR': 4,
+            'AAI': 5,
+            'AAIR': 6,
+            'VVI': 7,
+            'VVIR': 8
+        }
+        self.ActivityThresholdDict = {
+            "V-Low": 1,
+            'Low': 2,
+            'Med-Low': 3,
+            'Med': 4,
+            'Med-High': 5,
+            'High': 6,
+            'V-High': 7
+        }
+
+    def send_param(self):
+        Signal_set = self.Start + self.Fn_set + self.Pacing_mode + self.LRL + self.URL + self.MSR + self.A_PA + self.V_PA + self.A_PW + self.V_PW + self.A_Sense + self.V_Sense + self.A_R + self.V_R + self.PVARP + self.Act_thres + self.React_time + self.Response_factor + self.Recovery_time
+        with serial.Serial(self.frdm_port, 115200) as pacemaker:
+            pacemaker.write(Signal_set)
+
+    def get_echo(self):
+        # Start = b'\x16'
+        # SYNC = b'\x22'
+        # Fn_set = b'\x55'
+        # Pacing_mode = struct.pack("B", 1)
+        # LRL = struct.pack("B", 1)
+        # URL = struct.pack("B", 1)
+        # MSR = struct.pack("B", 1)
+        # A_PA = struct.pack("f", 1.0)
+        # V_PA = struct.pack("f", 1.0)
+        # A_PW = struct.pack("B", 1)
+        # V_PW = struct.pack("B", 1)
+        # A_Sense = struct.pack("f", 1)
+        # V_Sense = struct.pack("f", 1)
+        # A_R = struct.pack("H", 1)
+        # V_R = struct.pack("H", 1)
+        # PVARP = struct.pack("H", 1)
+        # Act_thres = struct.pack("B", 1)
+        # React_time = struct.pack("B", 1)
+        # Response_factor = struct.pack("B", 1)
+        # Recovery_time = struct.pack("H", 1)
+        Signal_echo = self.Start + self.SYNC + self.Pacing_mode + self.LRL + self.URL + self.MSR + self.A_PA + self.V_PA + self.A_PW + self.V_PW + self.A_Sense + self.V_Sense + self.A_R + self.V_R + self.PVARP + self.Act_thres + self.React_time + self.Response_factor + self.Recovery_time
+        #Signal_echo = Start + SYNC + Pacing_mode + LRL + URL + MSR + A_PA + V_PA + A_PW + V_PW + A_Sense + V_Sense + A_R + V_R + PVARP + Act_thres + React_time + Response_factor + Recovery_time
+
+        print(self.LRL)
+        with serial.Serial(self.frdm_port, 115200) as pacemaker:
+            pacemaker.write(Signal_echo)
+            print("before read")
+            data = pacemaker.read(49)
+            #print(data)
+            print("after read")
+            Pacing_mode = data[0]
+            LRL = data[1]
+            URL = data[2]
+            MSR = data[3]
+            A_PA = struct.unpack("f", data[4:8])[0]
+            V_PA = struct.unpack("f", data[8:12])[0]
+            A_PW = data[12]
+            V_PW = data[13]
+            A_Sens = struct.unpack("f", data[14:18])[0]
+            V_Sens = struct.unpack("f", data[18:22])[0]
+            A_R = struct.unpack("H", data[22:24])[0]
+            V_R = struct.unpack("H", data[24:26])[0]
+            PVARP = struct.unpack("H", data[26:28])[0]
+            Act_thres = data[28]
+            React_time = data[29]
+            Response_factor = data[30]
+            Recovery_time = struct.unpack("H", data[31:33])[0]
+            self.Atr = struct.unpack("d", data[33:41])[0]
+            self.Vnt = struct.unpack("d", data[41:49])[0]
+
+            print("From the board:")
+            print("Pacing_mode = ", Pacing_mode)
+            print("LRL = ", LRL)
+            print("URL = ", URL)
+            print("MSR = ", MSR)
+            print("A_PA = ", A_PA)
+            print("V_PA = ", V_PA)
+            print("A_PW = ", A_PW)
+            print("V_PW = ", V_PW)
+            print("A_Sens = ", A_Sens)
+            print("V_Sens = ", V_Sens)
+            print("A_R = ", A_R)
+            print("V_R = ", V_R)
+            print("PVARP = ", PVARP)
+            print("Act_thres = ", Act_thres)
+            print("React_time = ", React_time)
+            print("Response_factor = ", Response_factor)
+            print("Recovery_time = ", Recovery_time)
+            print("Atrial graph value = ", self.Atr)
+            print("Ventrical graph value = ", self.Vnt)
+
+    def getAtr(self):
+        return self.Atr
+
+    def getVnt(self):
+        return self.Vnt
+
+    def update(self):
+        self.login = LoginDatabase()
+        self.currentmode = self.login.ReturnMode(self.userID)[0][4]
+        print(self.currentmode)
+        if self.currentmode == "AOO":
+            self.AOO_receive = self.AOO.Search(self.userID)
+            print(self.AOO_receive)
+            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+            self.LRL = struct.pack("B", int(self.AOO_receive[0][1]))
+            self.URL = struct.pack("B", int(self.AOO_receive[0][2]))
+            self.MSR = struct.pack("B", 1) #max sensor rate
+            if self.AOO_receive[0][3] != 'Off':
+                self.A_PA = struct.pack("f", float(self.AOO_receive[0][3])*20)  # pulse amplitude
+            else:
+                self.A_PA = struct.pack("f", float(0))
+            self.V_PA = struct.pack("f", 1.0)  # pulse amplitude
+            self.A_PW = struct.pack("B", int(self.AOO_receive[0][4]))  # pulse width
+            self.V_PW = struct.pack("B", 1)  # pulse width
+            self.A_Sense = struct.pack("f", 1.0)  # sensitivity
+            self.V_Sense = struct.pack("f", 1.0)  # sensitivity
+            self.A_R = struct.pack("H", 1)  # ARP
+            self.V_R = struct.pack("H", 1)  # VRP
+            self.PVARP = struct.pack("H", 1)  # PVARP
+            self.Act_thres = struct.pack("B", 1)  # activity threshold
+            self.React_time = struct.pack("B", 1)  # reaction time
+            self.Response_factor = struct.pack("B", 1)  # response factor
+            self.Recovery_time = struct.pack("H", 1)  # recovery time
+
+        elif self.currentmode == "VOO":
+            self.VOO_receive = self.VOO.Search(self.userID)
+            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+            self.LRL = struct.pack("B", int(self.VOO_receive[0][1]))
+            self.URL = struct.pack("B", int(self.VOO_receive[0][2]))
+            self.MSR = struct.pack("B", 1) #max sensor rate
+            self.A_PA = struct.pack("f", 1.0)  # pulse amplitude
+            if self.VOO_receive[0][3] != 'Off':
+                self.V_PA = struct.pack("f", float(self.VOO_receive[0][3])*20)  # pulse amplitude
+            else:
+                self.V_PA = struct.pack("f", float(0))
+            self.A_PW = struct.pack("B", 1)  # pulse width
+            self.V_PW = struct.pack("B", int(self.VOO_receive[0][4]))  # pulse width
+            self.A_Sense = struct.pack("f", 1.0)  # sensitivity
+            self.V_Sense = struct.pack("f", 1.0)  # sensitivity
+            self.A_R = struct.pack("H", 1)  # ARP
+            self.V_R = struct.pack("H", 1)  # VRP
+            self.PVARP = struct.pack("H", 1)  # PVARP
+            self.Act_thres = struct.pack("B", 1)  # activity threshold
+            self.React_time = struct.pack("B", 1)  # reaction time
+            self.Response_factor = struct.pack("B", 1)  # response factor
+            self.Recovery_time = struct.pack("H", 1)  # recovery time
+        elif self.currentmode == "AAI":
+            self.AAI_receive = self.AAI.Search(self.userID)
+            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+            self.LRL = struct.pack("B", int(self.AAI_receive[0][1]))
+            self.URL = struct.pack("B", int(self.AAI_receive[0][2]))
+            self.MSR = struct.pack("B", 1) #max sensor rate
+            if self.AAI_receive[0][3] != 'Off':
+                self.A_PA = struct.pack("f", float(self.AAI_receive[0][3])*20)  # pulse amplitude
+            else:
+                self.A_PA = struct.pack("f", float(0))  # pulse amplitude
+            self.V_PA = struct.pack("f", 1.0)  # pulse amplitude
+            self.A_PW = struct.pack("B", int(self.AAI_receive[0][4]))  # pulse width
+            self.V_PW = struct.pack("B", 1)  # pulse width
+            self.A_Sense = struct.pack("f", float(self.AAI_receive[0][5])*20)  # sensitivity
+            self.V_Sense = struct.pack("f", 1.0)  # sensitivity
+            self.A_R = struct.pack("H", int(self.AAI_receive[0][6]))  # ARP
+            self.V_R = struct.pack("H", 1)  # VRP
+            self.PVARP = struct.pack("H", int(self.AAI_receive[0][7]))  # PVARP
+            self.Act_thres = struct.pack("B", 1)  # activity threshold
+            self.React_time = struct.pack("B", 1)  # reaction time
+            self.Response_factor = struct.pack("B", 1)  # response factor
+            self.Recovery_time = struct.pack("H", 1)  # recovery time
+        elif self.currentmode == "VVI":
+            self.VVI_receive = self.VVI.Search(self.userID)
+            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+            self.LRL = struct.pack("B", int(self.VVI_receive[0][1]))
+            self.URL = struct.pack("B", int(self.VVI_receive[0][2]))
+            self.MSR = struct.pack("B", 1) #max sensor rate
+            self.A_PA = struct.pack("f", 1.0)  # pulse amplitude
+            if self.VVI_receive[0][2] != 'Off':
+                self.V_PA = struct.pack("f", float(self.VVI_receive[0][3])*20)  # pulse amplitude
+            else:
+                self.V_PA = struct.pack("f", float(0))
+            self.A_PW = struct.pack("B", 1)  # pulse width
+            self.V_PW = struct.pack("B", int(self.VVI_receive[0][4]))  # pulse width
+            self.A_Sense = struct.pack("f", 1.0)  # sensitivity
+            self.V_Sense = struct.pack("f", float(self.VVI_receive[0][5])*20)  # sensitivity
+            self.A_R = struct.pack("H", 1)  # ARP
+            self.V_R = struct.pack("H", int(self.VVI_receive[0][6]))  # VRP
+            self.PVARP = struct.pack("H", 1)  # PVARP
+            self.Act_thres = struct.pack("B", 1)  # activity threshold
+            self.React_time = struct.pack("B", 1)  # reaction time
+            self.Response_factor = struct.pack("B", 1)  # response factor
+            self.Recovery_time = struct.pack("H", 1)  # recovery time
+        elif self.currentmode == "AOOR":
+            self.AOOR_receive = self.AOOR.Search(self.userID)
+            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+            self.LRL = struct.pack("B", int(self.AOOR_receive[0][1]))
+            self.URL = struct.pack("B", int(self.AOOR_receive[0][2]))
+            self.MSR = struct.pack("B", int(self.AOOR_receive[0][5])) #max sensor rate
+            if self.AOOR_receive[0][3] != 'Off':
+                self.A_PA = struct.pack("f", float(self.AOOR_receive[0][3])*20)  # pulse amplitude
+            else:
+                self.A_PA = struct.pack("f", float(0))
+            self.V_PA = struct.pack("f", 1.0)  # pulse amplitude
+            self.A_PW = struct.pack("B", int(self.AOOR_receive[0][4]))  # pulse width
+            self.V_PW = struct.pack("B", 1)  # pulse width
+            self.A_Sense = struct.pack("f", 1.0)  # sensitivity
+            self.V_Sense = struct.pack("f", 1.0)  # sensitivity
+            self.A_R = struct.pack("H", 1)  # ARP
+            self.V_R = struct.pack("H", 1)  # VRP
+            self.PVARP = struct.pack("H", 1)  # PVARP
+            self.Act_thres = struct.pack("B", self.ActivityThresholdDict[self.AOOR_receive[0][6]])  # activity threshold
+            self.React_time = struct.pack("B", int(self.AOOR_receive[0][7]))  # reaction time
+            self.Response_factor = struct.pack("B", int(self.AOOR_receive[0][8]))  # response factor
+            self.Recovery_time = struct.pack("H", int(self.AOOR_receive[0][9])*60)  # recovery time
+        elif self.currentmode == "VOOR":
+            self.VOOR_receive = self.VOOR.Search(self.userID)
+            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+            self.LRL = struct.pack("B", int(self.VOOR_receive[0][1]))
+            self.URL = struct.pack("B", int(self.VOOR_receive[0][2]))
+            self.MSR = struct.pack("B", int(self.VOOR_receive[0][5])) #max sensor rate
+            self.A_PA = struct.pack("f", 1.0)  # pulse amplitude
+            if self.VOOR_receive[0][3] != 'Off':
+                self.V_PA = struct.pack("f", float(self.VOOR_receive[0][3])*20)  # pulse amplitude
+            else:
+                self.V_PA = struct.pack("f", float(0))
+            self.A_PW = struct.pack("B", 1)  # pulse width
+            self.V_PW = struct.pack("B", int(self.VOOR_receive[0][4]))  # pulse width
+            self.A_Sense = struct.pack("f", 1.0)  # sensitivity
+            self.V_Sense = struct.pack("f", 1.0)  # sensitivity
+            self.A_R = struct.pack("H", 1)  # ARP
+            self.V_R = struct.pack("H", 1)  # VRP
+            self.PVARP = struct.pack("H", 1)  # PVARP
+            self.Act_thres = struct.pack("B", self.ActivityThresholdDict[self.VOOR_receive[0][6]])  # activity threshold
+            self.React_time = struct.pack("B", int(self.VOOR_receive[0][7]))  # reaction time
+            self.Response_factor = struct.pack("B", int(self.VOOR_receive[0][8]))  # response factor
+            self.Recovery_time = struct.pack("H", int(self.VOOR_receive[0][9])*60)  # recovery time
+        elif self.currentmode == "AAIR":
+            self.AAIR_receive = self.AAIR.Search(self.userID)
+            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+            self.LRL = struct.pack("B", int(self.AAIR_receive[0][1]))
+            self.URL = struct.pack("B", int(self.AAIR_receive[0][2]))
+            self.MSR = struct.pack("B", int(self.AAIR_receive[0][5])) #max sensor rate
+            if self.AAIR_receive[0][2] != 'Off':
+                self.A_PA = struct.pack("f", float(self.AAIR_receive[0][3])*20)  # pulse amplitude
+            else:
+                self.A_PA = struct.pack("f", float(0))
+            self.V_PA = struct.pack("f", 1.0)  # pulse amplitude
+            self.A_PW = struct.pack("B", int(self.AAIR_receive[0][4]))  # pulse width
+            self.V_PW = struct.pack("B", 1)  # pulse width
+            self.A_Sense = struct.pack("f", float(self.AAIR_receive[0][6])*20)  # sensitivity
+            self.V_Sense = struct.pack("f", 1.0)  # sensitivity
+            self.A_R = struct.pack("H", int(self.AAIR_receive[0][7]))  # ARP
+            self.V_R = struct.pack("H", 1)  # VRP
+            self.PVARP = struct.pack("H", int(self.AAIR_receive[0][8]))  # PVARP
+            self.Act_thres = struct.pack("B", self.ActivityThresholdDict[self.AAIR_receive[0][9]])  # activity threshold
+            self.React_time = struct.pack("B", int(self.AAIR_receive[0][10]))  # reaction time
+            self.Response_factor = struct.pack("B", int(self.AAIR_receive[0][11]))  # response factor
+            self.Recovery_time = struct.pack("H", int(self.AAIR_receive[0][12])*60)  # recovery time
+        elif self.currentmode == "VVIR":
+            self.VVIR_receive = self.VVIR.Search(self.userID)
+            self.Pacing_mode = struct.pack("B", self.modeDict[self.currentmode])
+            self.LRL = struct.pack("B", int(self.VVIR_receive[0][1]))
+            self.URL = struct.pack("B", int(self.VVIR_receive[0][2]))
+            self.MSR = struct.pack("B", int(self.VVIR_receive[0][5])) #max sensor rate
+            self.A_PA = struct.pack("f", 1.0)  # pulse amplitude
+            if self.VVIR_receive[0][2] != 'Off':
+                self.V_PA = struct.pack("f", float(self.VVIR_receive[0][3])*20)  # pulse amplitude
+            else:
+                self.V_PA = struct.pack("f", float(0))  # pulse amplitude
+            self.A_PW = struct.pack("B", 1)  # pulse width
+            self.V_PW = struct.pack("B", int(self.VVIR_receive[0][4]))  # pulse width
+            self.A_Sense = struct.pack("f", 1.0)  # sensitivity
+            self.V_Sense = struct.pack("f", float(self.VVIR_receive[0][6])*20)  # sensitivity
+            self.A_R = struct.pack("H", 1)  # ARP
+            self.V_R = struct.pack("H", int(self.VVIR_receive[0][7]))  # VRP
+            self.PVARP = struct.pack("H", 0)  # PVARP
+            self.Act_thres = struct.pack("B", self.ActivityThresholdDict[self.VVIR_receive[0][8]])  # activity threshold
+            self.React_time = struct.pack("B", int(self.VVIR_receive[0][9]))  # reaction time
+            self.Response_factor = struct.pack("B", int(self.VVIR_receive[0][10]))  # response factor
+            self.Recovery_time = struct.pack("H", int(self.VVIR_receive[0][11])*60)  # recovery time
+
+        print('\n\n\n\n\n')
 class LoginDatabase:
     def __init__(self):
         #creates the table and put userID, firstname, lastname, password and mode as input stored variables
@@ -1455,6 +1589,7 @@ class LoggedInWindow:
         self.window = tkinter.Tk()
         self.window.wm_title("Welcome Page")
         self.UserID = userID
+        self.serial = pacemakerSerial(self.UserID)
         bg_color = "blue"
         fg_color = "white"
         cha_color = "black"
@@ -1480,7 +1615,7 @@ class LoggedInWindow:
                       else "Status update: Connection with DCM is " + "OFF",font=("times new roman", 10, "bold"),
                       width=50).grid(pady=20, column=1, row=2)
     def Graph(self):
-        self.graph = GraphWindow(self.UserID, self.window)
+        self.graph = GraphWindow(self.UserID, self.window, self.serial)
     def Signout(self):
         self.window.destroy()
         self.homepage = HomePage()
@@ -1505,14 +1640,14 @@ class LoggedInWindow:
             self.login.setMode("UPDATE Login_table SET mode = ? WHERE UserID = ?", (self.cmode, self.UserID))
             #double security and prevents the mode not selected and goes to the parameters window
             try:
-                self.parameterWindow = ParametersWindow(self.UserID, self.window)
+                self.parameterWindow = ParametersWindow(self.UserID, self.window, self.serial)
             except AttributeError:
                 tkinter.messagebox.showerror("Invalid Mode", "Select your mode first!")
 
 
 #opens and intializes the parameters window
 class ParametersWindow:
-    def __init__(self, userID, loggedinwindow):
+    def __init__(self, userID, loggedinwindow, Serial):
         self.UserID = userID
         self.login = LoginDatabase()
         self.result = self.login.ReturnMode(self.UserID)
@@ -1520,6 +1655,8 @@ class ParametersWindow:
         self.parameterwindow = tkinter.Tk()
         self.parameterwindow.wm_title("Current Parameters")
         self.loggedinpage = loggedinwindow
+        #self.serial = pacemakerSerial(self.UserID)
+        self.serial = Serial
         if 'normal' == self.parameterwindow.state():
             self.loggedinpage.withdraw()
         self.AAI = AAIParameterDatabase()
@@ -1683,7 +1820,7 @@ class ParametersWindow:
 
     #save the currently entered parameter and disable the comboboxes from editing again until clicking edit again
     def Save(self):
-        self.serial = pacemakerSerial(self.UserID)
+
         if int(self.LRLBox.get()) > int(self.URLBox.get()):
             tkinter.messagebox.showerror("Input Error", "Lower rate limit higher than upper rate limit, please re-enter")
             self.LRLBox.set(60)
@@ -1726,8 +1863,12 @@ class ParametersWindow:
                                                 self.PulseWidthBox.get(),self.SensitivityBox.get(),
                                                 self.ARPBox.get(),self.PVARPBox.get(), self.UserID)
                     tkinter.messagebox.showinfo("Saved", "Saved")
+
+
                     self.serial.update()
                     self.serial.send_param()
+                    self.serial.get_echo()
+                    print("after upate")
                     self.EditButton.config(state='active')
                     self.SaveButton.config(state='disabled')
             elif self.currentmode == "VVI":
@@ -1748,6 +1889,7 @@ class ParametersWindow:
                     tkinter.messagebox.showinfo("Saved", "Saved")
                     self.serial.update()
                     self.serial.send_param()
+                    self.serial.get_echo()
                     self.EditButton.config(state='active')
                     self.SaveButton.config(state='disabled')
                 else:
@@ -1766,8 +1908,14 @@ class ParametersWindow:
                     self.AOOdatabase.Update(self.LRLBox.get(), self.URLBox.get(), self.PulseAmplitudeBox.get(),
                                             self.PulseWidthBox.get(),self.UserID)
                 tkinter.messagebox.showinfo("Saved", "Saved")
+
                 self.serial.update()
+                print("after update")
                 self.serial.send_param()
+                print("after send")
+                self.serial.get_echo()
+                print("after echo")
+
                 self.EditButton.config(state='active')
                 self.SaveButton.config(state='disabled')
             elif self.currentmode == "VOO":
@@ -1784,6 +1932,7 @@ class ParametersWindow:
                 tkinter.messagebox.showinfo("Saved", "Saved")
                 self.serial.update()
                 self.serial.send_param()
+                self.serial.get_echo()
                 self.EditButton.config(state='active')
                 self.SaveButton.config(state='disabled')
             elif self.currentmode == "AOOR":
@@ -1813,6 +1962,7 @@ class ParametersWindow:
                     tkinter.messagebox.showinfo("Saved", "Saved")
                     self.serial.update()
                     self.serial.send_param()
+                    self.serial.get_echo()
                     self.EditButton.config(state='active')
                     self.SaveButton.config(state='disabled')
             elif self.currentmode == "VOOR":
@@ -1842,6 +1992,7 @@ class ParametersWindow:
                     tkinter.messagebox.showinfo("Saved", "Saved")
                     self.serial.update()
                     self.serial.send_param()
+                    self.serial.get_echo()
                     self.EditButton.config(state='active')
                     self.SaveButton.config(state='disabled')
             elif self.currentmode == "AAIR":
@@ -1892,6 +2043,7 @@ class ParametersWindow:
                     tkinter.messagebox.showinfo("Saved", "Saved")
                     self.serial.update()
                     self.serial.send_param()
+                    self.serial.get_echo()
                     self.EditButton.config(state='active')
                     self.SaveButton.config(state='disabled')
             elif self.currentmode == "VVIR":
@@ -1929,6 +2081,7 @@ class ParametersWindow:
                     tkinter.messagebox.showinfo("Saved", "Saved")
                     self.serial.update()
                     self.serial.send_param()
+                    self.serial.get_echo()
                     self.EditButton.config(state='active')
                     self.SaveButton.config(state='disabled')
 
@@ -2617,37 +2770,41 @@ class ModeWindow:
 
 
 class GraphWindow:
-    def __init__(self, userID, loggedinwindow):
+    def __init__(self, userID, loggedinwindow, Serial):
         self.UserID = userID
         self.login = LoginDatabase()
-        self.result = self.login.ReturnMode(self.UserID)
-        #the current mode
-        print(self.result)
-        self.cmode = self.result[0][4]
-        self.window = tkinter.Tk()
-        self.window.wm_title("Egram Graphs")
+        # self.result = self.login.ReturnMode(self.UserID)
+        # #the current mode
+        # print(self.result)
+        # self.cmode = self.result[0][4]
+        # self.window = tkinter.Tk()
+        # self.window.wm_title("Egram Graphs")
         self.loggedin = loggedinwindow
-        if 'normal' == self.window.state():
-            self.loggedin.withdraw()
-        self.serial = pacemakerSerial(self.cmode)
+        # if 'normal' == self.window.state():
+        #     self.loggedin.withdraw()
+        #self.serial = pacemakerSerial(self.UserID)
+        self.serial = Serial
         self.serial.get_echo()
-        self.graph = animateGraph(self.serial)
+        self.graph = animateGraph(self.serial, self.UserID, self.loggedin)
+        self.graph.showPlot()
         bg_color = "blue"
         fg_color = "white"
         cha_color = "black"
-        self.BackButton = tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color,
-                                        text="Back",font=("times new roman", 15, "bold"), command=self.Back)
-        self.BackButton.grid(pady=15, column=1, row=2)
-        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
-        self.window.mainloop()
+        # create a figure
 
-    def on_closing(self):
-        self.window.destroy()
-        self.loggedin.deiconify()
+        # self.BackButton = tkinter.Button(self.window, width=20, relief=tkinter.GROOVE, fg=cha_color, bg=bg_color,
+        #                                 text="Back",font=("times new roman", 15, "bold"), command=self.Back)
+        # self.BackButton.grid(pady=15, column=1, row=2)
+        #self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
+        #self.window.mainloop()
 
-    def Back(self):
-        self.window.destroy()
-        self.loggedin.deiconify()
+    # def on_closing(self):
+    #     self.window.destroy()
+    #     self.loggedin.deiconify()
+
+    # def Back(self):
+    #     self.window.destroy()
+    #     self.loggedin.deiconify()
 
 
 
