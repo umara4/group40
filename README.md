@@ -20,4 +20,4 @@ Pacing.slx contains all of our simulink models with comments
 
 All other files demonstrate progress over the period of the course
 
-Rememeber to plugin the board
+Remember to plugin the board
